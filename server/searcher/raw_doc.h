@@ -17,21 +17,21 @@ class RawDoc {
  public:
   RawDoc() {}
   ~RawDoc() {}
-  inline size_t FieldNum() const {
-    return fields_.size();
-  }
   inline void SetDocId(DocId id) {
     id_ = id;
+  }
+  inline void AddField(shared_ptr<Field>& f) {
+    fields_.push_back(f);
   }
   inline DocId GetDocId() const {
     return id_;
   }
+  inline size_t FieldNum() const {
+    return fields_.size();
+  }
   inline const Field& GetField(size_t i) const {
     // range ?
     return *(fields_[i].get());
-  }
-  inline void AddField(shared_ptr<Field>& f) {
-    fields_.push_back(f);
   }
 
  private:

@@ -47,10 +47,15 @@ void InverseDoclistSearcher::SearchDocId(
   // search
   while (true) {
     if (doc_id_min_heap.empty()) {
+      Log::WriteToDisk(DEBUG, "heap empty!");
       break;
     }
     if (match_all_key &&
         (doc_id_min_heap.size() != hit_doc_lists.size())) {
+      Log::WriteToDisk(DEBUG,
+                       "some list hits end:%ld vs %ld.",
+                       doc_id_min_heap.size(),
+                       hit_doc_lists.size());
       break;
     }
     if (HitDoc(max_doc_id,
@@ -96,6 +101,11 @@ void InverseDoclistSearcher::SearchDocId(
             item.next_doc_id_idx,
             max_doc_id);
     if (doc_id_idx < 0) {
+      Log::WriteToDisk(
+          DEBUG,
+          "over at: next_doc_id index(%ld),max_doc_id(%ld)",
+          item.next_doc_id_idx,
+          max_doc_id);
       // over.
       continue;
     }
@@ -103,6 +113,9 @@ void InverseDoclistSearcher::SearchDocId(
         doc_id_idx);
     item.next_doc_id_idx = doc_id_idx + 1;
     doc_id_min_heap.push(item);
+    Log::WriteToDisk(DEBUG,
+                     "Forward %ld to %ld", max_doc_id,
+                     item.doc_id);
   }
 }
 
@@ -129,14 +142,15 @@ bool InverseDoclistSearcher::HitDoc(
     const string& req_field = fields[idx];
     const DocListEntry& cur_entry =
         idl->GetEntry(cur_doc_id_idx);
+    min_heap->pop();
     if (!cur_entry.HitField(req_field)) {
       Log::WriteToDisk(DEBUG,
-                       "%s is not in entry(%s).",
+                       "%s is not in entry(docid:%ld,%s).",
                        req_field.c_str(),
+                       cur_entry.GetDocId(),
                        cur_entry.GetAllFields().c_str());
       break;
     }
-    min_heap->pop();
   }
   if (min_heap->empty()) {
     min_heap->swap(*new_heap);

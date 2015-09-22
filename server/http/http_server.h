@@ -20,11 +20,13 @@ typedef void (*HttpCB)(evhtp_request_t*, void*);
 class HttpServer {
  public:
   HttpServer(const string& host,
-             uint32 port)
+             uint32 port,
+             int thread_num)
       : host_(host),
         port_(port),
         eb_(event_base_new()),
-        http_(NULL) {
+        http_(NULL),
+        thread_num_(thread_num) {
     Init();
   }
   ~HttpServer();
@@ -46,6 +48,7 @@ class HttpServer {
   uint32 port_;
   evbase_t* eb_;
   evhtp_t* http_;
+  int thread_num_;
 
   DO_NOT_COPY_AND_ASSIGN(HttpServer);
 };

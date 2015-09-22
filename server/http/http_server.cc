@@ -13,7 +13,6 @@
 #include <vector>
 using namespace::std;
 
-DEFINE_int32(server_thread_num, 4, "");
 DEFINE_int32(backlog, 100, "");
 
 void HttpServer::Init() {
@@ -24,11 +23,8 @@ void HttpServer::Init() {
   if (!http_) {
     return;
   }
-  if (FLAGS_server_thread_num > 1) {
-    evhtp_use_threads(http_,
-                      NULL,
-                      FLAGS_server_thread_num,
-                      NULL); 
+  if (thread_num_ > 1) {
+    evhtp_use_threads(http_, NULL, thread_num_, NULL); 
   }
   evhtp_bind_socket(http_,
                     host_.c_str(),

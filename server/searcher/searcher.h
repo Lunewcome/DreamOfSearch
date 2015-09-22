@@ -95,6 +95,10 @@ class Searcher {
       const map<string, string>& params,
       SearchRequest* sr,
       cJSON* running_info) const;
+  void BuildDocIntoReader(
+      const map<string, string>& params,
+      cJSON* running_info,
+      string* err_msg);
 
   shared_ptr<Indexer> supply_indexer_;
   shared_ptr<InverseDoclistSearcher> index_searcher_;

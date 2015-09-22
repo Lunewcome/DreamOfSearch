@@ -17,8 +17,6 @@ DEFINE_string(query_purchase, "/phs", "");
 DEFINE_string(query_add_new, "/add", "");
 DEFINE_string(query_status, "/sts", "");
 
-DEFINE_bool(is_instant_searcher, false, "");
-
 void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_supply,
                       SearchSupply,
@@ -26,7 +24,7 @@ void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_purchase,
                       SearchPurchase,
                       this);
-  if (FLAGS_is_instant_searcher) {
+  if (is_instant_searcher_) {
     http_server_->AddCB(FLAGS_query_add_new,
                         AddNewDataToIndex,
                         this);
@@ -34,7 +32,7 @@ void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_status,
                       Status,
                       this);
-  if (!FLAGS_is_instant_searcher) {
+  if (!is_instant_searcher_) {
     searcher_->BuildIndexFromFile();
   }
 }
@@ -87,7 +85,7 @@ void HttpBackend::AddNewDataToIndex(
   map<string, string> params;
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
   bk->GetParams(req, &params, running_info);
-  cJSON* json_reply = bk->GetSearcher()->SearchSupply(
+  cJSON* json_reply = bk->GetSearcher()->AddNewDataToIndex(
       params,
       running_info);
   char* str_reply = cJSON_Print(json_reply);

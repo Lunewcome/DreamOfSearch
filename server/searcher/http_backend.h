@@ -30,10 +30,11 @@ typedef struct Response {
 
 class HttpBackend {
  public:
-  HttpBackend(int v, shared_ptr<HttpServer> server)
+  HttpBackend(int v, shared_ptr<HttpServer> server, bool is_instant)
       : log_v_(v),
         searcher_(new Searcher()),
-        http_server_(server) {
+        http_server_(server),
+        is_instant_searcher_(is_instant) {
     Init();
   }
   ~HttpBackend() {}
@@ -72,6 +73,7 @@ class HttpBackend {
   const int log_v_;
   shared_ptr<Searcher> searcher_;
   shared_ptr<HttpServer> http_server_;
+  bool is_instant_searcher_;
 
   DO_NOT_COPY_AND_ASSIGN(HttpBackend);
 };

@@ -8,11 +8,14 @@
 DEFINE_bool(show_index, false, "");
 DEFINE_bool(dump_index, false, "");
 
-void Indexer::SetDocSource(const string& path,
-                           const string& reader_name) {
-  // ......
+Indexer::Indexer(const string& prefix) : prefix_(prefix) {
   reader_.reset(new DocReader());
-  reader_->Parse(path);
+  reader_->LoadFieldAttr(prefix + ".conf");
+  Log::WriteToDisk(ERROR, prefix);
+}
+
+void Indexer::SetDocSource(const string& reader_name) {
+  reader_->Parse(prefix_);
 }
 
 void Indexer::Build() {

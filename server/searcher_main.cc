@@ -13,6 +13,8 @@ DEFINE_int32(port, 8384, "server port");
 DEFINE_bool(daemonize, false, "");
 DEFINE_string(log_file, "./search.log", "");
 DEFINE_int32(v, 0, "");
+DEFINE_bool(is_instant_searcher, false, "");
+DEFINE_int32(server_thread_num, 4, "");
 
 void SigHandler(int sig) {
   unlink(FLAGS_pid_file.c_str());
@@ -24,6 +26,10 @@ int main (int argc, char* argv[]) {
   Log::Init(FLAGS_log_file,
             FLAGS_v,
             1);
+  // instant search is current not thread-safe.
+  if (FLAGS_is_instant_searcher) {
+    FLAGS_server_thread_num = 0;
+  }
   if (FLAGS_daemonize) {
     daemonize(0);
     silence();
@@ -31,9 +37,13 @@ int main (int argc, char* argv[]) {
   setupSignalHandlers(SigHandler);
   createPidFile(FLAGS_pid_file.c_str());
   shared_ptr<HttpServer> hs(
-      new HttpServer(FLAGS_host, FLAGS_port));
+      new HttpServer(FLAGS_host,
+                     FLAGS_port,
+                     FLAGS_server_thread_num));
   shared_ptr<HttpBackend> backend(
-      new HttpBackend(FLAGS_v, hs));
+      new HttpBackend(FLAGS_v,
+                      hs,
+                      FLAGS_is_instant_searcher));
   hs->Serve();
   return 0;
 }

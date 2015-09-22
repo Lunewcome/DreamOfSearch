@@ -210,16 +210,14 @@ class IndexDoc {
 
 class Indexer {
  public:
-  Indexer() {}
-  explicit Indexer(const string& path,
-                   const string& reader) {
-    SetDocSource(path, reader);
-  }
+  Indexer(const string& prefix);
   ~Indexer() {}
-  void SetDocSource(const string& path,
-                    const string& reader_name);
+  void SetDocSource(const string& reader_name);
   void AddDocToIndex(const RawDoc& doc);
   void Build();
+  shared_ptr<DocReader>& GetDocReader() {
+    return reader_;
+  }
   bool GetInverseDocList(
       const string& key,
       shared_ptr<InverseDocList>* obj) const {
@@ -244,6 +242,8 @@ class Indexer {
   vector<uint32> doc_ids_;
   map<uint32, uint32> doc_id_idx_map_;
   map<int, shared_ptr<IndexDoc> > indexed_doc_;
+
+  string prefix_;
 
   DO_NOT_COPY_AND_ASSIGN(Indexer);
 };

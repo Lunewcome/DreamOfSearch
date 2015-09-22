@@ -20,7 +20,7 @@ DEFINE_string(field1, "", "");
 DEFINE_string(field2, "", "");
 
 Searcher::Searcher()
-    : supply_indexer_(new Indexer()) {
+    : supply_indexer_(new Indexer(FLAGS_supply_data_prefix)) {
   index_searcher_.reset(
       new InverseDoclistSearcher(supply_indexer_));
 }
@@ -42,12 +42,17 @@ cJSON* Searcher::SearchSupply(
       cJSON_CreateNumber(end - start));
 
   cJSON* reply = cJSON_CreateObject();
+  string ids_str;
   for (size_t i = 0; i < ids.size(); ++i) {
-    cJSON_AddItemToObject(
-        reply,
-        "id",
-        cJSON_CreateNumber(ids[i]));
+    StringAppendF(&ids_str,
+    "%ld%c",
+    ids[i],
+    i == (ids.size() - 1) ? '\0' : ',');
   }
+  cJSON_AddItemToObject(
+      reply,
+      "ids",
+      cJSON_CreateString(ids_str.c_str()));
   return reply;
 }
 
@@ -83,12 +88,63 @@ void Searcher::GetSupplyRequestParams(
 cJSON* Searcher::AddNewDataToIndex(
     const map<string, string>& params,
     cJSON* running_info) {
-  return NULL;
+  shared_ptr<DocReader> reader =
+      supply_indexer_->GetDocReader();
+  string err_msg;
+  BuildDocIntoReader(params, running_info, &err_msg);
+  int i = 0;
+  while (reader->Next()) {
+    supply_indexer_->AddDocToIndex(reader->GetDoc());
+    ++i;
+  }
+  cJSON* reply = cJSON_CreateObject();
+  if (i == 0) {
+    cJSON_AddItemToObject(
+        reply,
+        "Fail to add",
+        cJSON_CreateString(err_msg.c_str()));
+  } else {
+    cJSON_AddItemToObject(reply,
+                          "added doc count",
+                          cJSON_CreateNumber(i));
+  }
+  return reply;
+}
+
+void Searcher::BuildDocIntoReader(
+    const map<string, string>& params,
+    cJSON* running_info,
+    string* err_msg) {
+  shared_ptr<DocReader> reader =
+      supply_indexer_->GetDocReader();
+  string line_doc;
+  const vector<FieldAttribute>& fa = reader->GetFieldAttr();
+  size_t counter = fa.size();
+  for (vector<FieldAttribute>::const_iterator fa_itrt =
+           fa.begin();
+       fa_itrt != fa.end();
+       ++fa_itrt) {
+    map<string, string>::const_iterator p_itrt =
+        params.find(fa_itrt->name);
+    if (p_itrt != params.end()) {
+      StringAppendF(&line_doc,
+                    "%s%c",
+                    p_itrt->second.c_str(),
+                    --counter == 0 ? '\0' : '\t');
+    } else {
+      // simply ignore...
+      *err_msg = "miss field:" + fa_itrt->name;
+      cJSON_AddItemToObject(
+          running_info,
+          "miss field",
+          cJSON_CreateString(fa_itrt->name.c_str()));
+      return;
+    }
+  }
+  reader->AddDoc(line_doc);
 }
 
 void Searcher::BuildIndexFromFile() {
-  supply_indexer_->SetDocSource(
-      FLAGS_supply_data_prefix,
-      FLAGS_doc_reader);
+  supply_indexer_->SetDocSource(FLAGS_doc_reader);
   supply_indexer_->Build();
 }

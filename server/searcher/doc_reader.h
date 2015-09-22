@@ -20,15 +20,19 @@ using std::vector;
 
 class DocReader {
  public:
-  DocReader() : doc_itrt_(0) {}
+  DocReader() : doc_itrt_(0), doc_id_counter_(1) {}
   virtual ~DocReader() {}
+  void LoadFieldAttr(const string& file);
   virtual void Parse(const string& path);
+  virtual void AddDoc(const string& line_doc);
   virtual bool Next() const {
     return doc_itrt_ < docs_.size();
   }
   virtual const RawDoc& GetDoc() {
-    // doc_itrt_ < docs_.size()
     return *(docs_[doc_itrt_++].get());
+  }
+  virtual const vector<FieldAttribute>& GetFieldAttr() const {
+    return field_attr_;
   }
   virtual bool ShouldStore(
       const string& field) const {
@@ -44,17 +48,15 @@ class DocReader {
     return (itrt != field_idx_map_.end()) &&
             (itrt->second);
   }
- protected:
-  void LoadFieldAttr(const string& file);
-  void Reset();
 
-  int doc_id_idx_;
+ protected:
   vector<FieldAttribute> field_attr_;
   map<string, int> field_str_map_;
   map<string, int> field_idx_map_;
   size_t spec_num_;
   vector<shared_ptr<RawDoc> > docs_;
   size_t doc_itrt_;
+  DocId doc_id_counter_;
 
  private:
 
