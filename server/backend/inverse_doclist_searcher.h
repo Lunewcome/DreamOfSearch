@@ -2,14 +2,14 @@
  *
  */
 
-#ifndef SERVER_SEARCHER_INVERSE_DOCLIST_SEARCHER_H_
-#define SERVER_SEARCHER_INVERSE_DOCLIST_SEARCHER_H_
+#ifndef SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_
+#define SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_
 
 #include "common/basics.h"
-#include "server/searcher/indexer.h"
-#include "server/searcher/doclist_entry_generic_matcher.h"
-#include "server/searcher/doclist_entry_matcher.h"
-#include "server/searcher/raw_doc.h"
+#include "server/backend/indexer.h"
+#include "server/backend/doclist_entry_generic_matcher.h"
+#include "server/backend/doclist_entry_matcher.h"
+#include "server/backend/raw_doc.h"
 
 #include <queue>
 using std::priority_queue;
@@ -52,4 +52,4 @@ class InverseDoclistSearcher {
   DO_NOT_COPY_AND_ASSIGN(InverseDoclistSearcher);
 };
 
-#endif  // SERVER_SEARCHER_INVERSE_DOCLIST_SEARCHER_H_
+#endif  // SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_

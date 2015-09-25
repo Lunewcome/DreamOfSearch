@@ -1,7 +1,7 @@
 #! /bin/sh
 
 pid_file="search.pid"
-running_cmd_name=`pwd`"/searcher_main"
+running_cmd_name=`pwd`"/search_backend"
 
 function KillByPidFile() {
   pid=`cat $1`

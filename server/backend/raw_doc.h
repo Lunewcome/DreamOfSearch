@@ -1,11 +1,11 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_RAW_DOC_H_
-#define SERVER_SEARCHER_RAW_DOC_H_
+#ifndef SERVER_BACKEND_RAW_DOC_H_
+#define SERVER_BACKEND_RAW_DOC_H_
 
 #include "common/basics.h"
-#include "server/searcher/field.h"
+#include "server/backend/field.h"
 
 #include <vector>
 using std::vector;
@@ -43,4 +43,4 @@ class RawDoc {
   DO_NOT_COPY_AND_ASSIGN(RawDoc);
 };
 
-#endif  // SERVER_SEARCHER_RAW_DOC_H_
+#endif  // SERVER_BACKEND_RAW_DOC_H_

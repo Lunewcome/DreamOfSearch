@@ -2,7 +2,7 @@
 #include "common/log.h"
 #include "common/util.h"
 
-#include "server/searcher/http_backend.h"
+#include "server/backend/http_backend.h"
 #include "server/http/http_server.h"
 
 #include <unistd.h>

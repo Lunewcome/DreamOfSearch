@@ -1,7 +1,7 @@
-#include "server/searcher/supply_reader.h"
+#include "server/backend/supply_reader.h"
 
 #include "common/simple_line_reader.h"
-#include "server/searcher/field.h"
+#include "server/backend/field.h"
 
 void SupplyReader::Parse(const string& path) {
   SimpleLineReader slr(path);

@@ -1,13 +1,13 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_SEARCHER_H_
-#define SERVER_SEARCHER_SEARCHER_H_
+#ifndef SERVER_BACKEND_SEARCHER_H_
+#define SERVER_BACKEND_SEARCHER_H_
 
 #include "common/basics.h"
 #include "common/shared_ptr.h"
-#include "server/searcher/indexer.h"
-#include "server/searcher/inverse_doclist_searcher.h"
+#include "server/backend/indexer.h"
+#include "server/backend/inverse_doclist_searcher.h"
 
 #include <map>
 #include <string>
@@ -106,4 +106,4 @@ class Searcher {
   DO_NOT_COPY_AND_ASSIGN(Searcher);
 };
 
-#endif  // SERVER_SEARCHER_SEARCHER_H_
+#endif  // SERVER_BACKEND_SEARCHER_H_

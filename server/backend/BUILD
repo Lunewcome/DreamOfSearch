@@ -10,6 +10,7 @@ cc_library (
   ],
   deps = [
     '//common:base',
-    '//server/http:http',
+    '//server/http:http_server',
+    '//server/http:http_client',
     '//thirdparty:cjson']
 )

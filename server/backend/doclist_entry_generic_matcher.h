@@ -1,13 +1,13 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_DOCLIST_ENTRY_GENERIC_MATCHER_H_
-#define SERVER_SEARCHER_DOCLIST_ENTRY_GENERIC_MATCHER_H_
+#ifndef SERVER_BACKEND_DOCLIST_ENTRY_GENERIC_MATCHER_H_
+#define SERVER_BACKEND_DOCLIST_ENTRY_GENERIC_MATCHER_H_
 
-#include "server/searcher/doclist_entry_matcher.h"
+#include "server/backend/doclist_entry_matcher.h"
 
 #include "common/registerer.h"
-#include "server/searcher/indexer.h"
+#include "server/backend/indexer.h"
 
 template<class T>
 class DocListEntryGenericMatcher : public DocListEntryMatcher<T> {
@@ -31,4 +31,4 @@ class DocListEntryGenericMatcher : public DocListEntryMatcher<T> {
   DO_NOT_COPY_AND_ASSIGN(DocListEntryGenericMatcher);
 };
 
-#endif  // SERVER_SEARCHER_DOCLIST_ENTRY_GENERIC_MATCHER_H_
+#endif  // SERVER_BACKEND_DOCLIST_ENTRY_GENERIC_MATCHER_H_

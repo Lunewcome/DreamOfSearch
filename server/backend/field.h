@@ -1,8 +1,8 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_FIELD_H_
-#define SERVER_SEARCHER_FIELD_H_
+#ifndef SERVER_BACKEND_FIELD_H_
+#define SERVER_BACKEND_FIELD_H_
 
 #include "common/basics.h"
 #include "common/string_util.h"
@@ -60,4 +60,4 @@ class Field {
   DO_NOT_COPY_AND_ASSIGN(Field);
 };
 
-#endif  // SERVER_SEARCHER_FIELD_H_
+#endif  // SERVER_BACKEND_FIELD_H_

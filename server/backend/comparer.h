@@ -1,8 +1,8 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_COMPARER_H_
-#define SERVER_SEARCHER_COMPARER_H_
+#ifndef SERVER_BACKEND_COMPARER_H_
+#define SERVER_BACKEND_COMPARER_H_
 
 template<class T>
 class Comparer {
@@ -58,4 +58,4 @@ class Lesser : public Comparer<T> {
   DO_NOT_COPY_AND_ASSIGN(Lesser);
 };
 
-#endif  // SERVER_SEARCHER_COMPARER_H_
+#endif  // SERVER_BACKEND_COMPARER_H_

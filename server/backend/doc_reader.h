@@ -3,13 +3,13 @@
  * luxinlai
  * 2015-08-25
  */
-#ifndef SERVER_SEARCHER_DOC_READER_BASE_H_
-#define SERVER_SEARCHER_DOC_READER_BASE_H_
+#ifndef SERVER_BACKEND_DOC_READER_BASE_H_
+#define SERVER_BACKEND_DOC_READER_BASE_H_
 
 #include "common/basics.h"
 #include "common/registerer.h"
 #include "common/shared_ptr.h"
-#include "server/searcher/raw_doc.h"
+#include "server/backend/raw_doc.h"
 
 #include <map>
 #include <string>
@@ -66,4 +66,4 @@ REGISTER_REGISTERER(DocReader);
 #define REGISTER_READER(sub) \
     REGISTER_CLASS(DocReader, sub)
 
-#endif  // SERVER_SEARCHER_DOC_READER_BASE_H_
+#endif  // SERVER_BACKEND_DOC_READER_BASE_H_

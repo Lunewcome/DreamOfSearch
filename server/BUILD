@@ -1,5 +1,5 @@
 cc_binary (
-  name = 'searcher_main',
-  srcs = ['searcher_main.cc'],
-  deps = ['//common:base','//server/searcher:server']
+  name = 'search_backend',
+  srcs = ['search_backend.cc'],
+  deps = ['//common:base','//server/backend:server']
 )

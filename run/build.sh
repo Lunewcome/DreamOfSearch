@@ -1,4 +1,4 @@
 cd ../server
 blade build
 cd -
-mv ../blade-bin/server/searcher_main .
+mv ../blade-bin/server/search_backend .

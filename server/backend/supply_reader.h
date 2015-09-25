@@ -3,10 +3,10 @@
  * luxinlai
  * 2015-08-25
  */
-#ifndef SERVER_SEARCHER_SUPPLY_READER_H_
-#define SERVER_SEARCHER_SUPPLY_READER_H_
+#ifndef SERVER_BACKEND_SUPPLY_READER_H_
+#define SERVER_BACKEND_SUPPLY_READER_H_
 
-#include "server/searcher/doc_reader.h"
+#include "server/backend/doc_reader.h"
 #include "common/basics.h"
 #include "common/registerer.h"
 
@@ -27,4 +27,4 @@ class SupplyReader : public DocReader {
 };
 REGISTER_READER(SupplyReader);
 
-#endif  // SERVER_SEARCHER_SUPPLY_READER_H_
+#endif  // SERVER_BACKEND_SUPPLY_READER_H_

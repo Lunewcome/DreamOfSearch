@@ -1,11 +1,11 @@
 /*
  * Http server backend.
  */
-#ifndef SERVER_SEARCHER_BACKEND_H_
-#define SERVER_SEARCHER_BACKEND_H_
+#ifndef SERVER_BACKEND_BACKEND_H_
+#define SERVER_BACKEND_BACKEND_H_
 
 #include "server/http/http_server.h"
-#include "server/searcher/searcher.h"
+#include "server/backend/searcher.h"
 
 #include <string>
 #include <vector>

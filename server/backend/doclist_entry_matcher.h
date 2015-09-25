@@ -1,11 +1,11 @@
 /**
  *
  */
-#ifndef SERVER_SEARCHER_DOCLIST_ENTRY_MATCHER_H_
-#define SERVER_SEARCHER_DOCLIST_ENTRY_MATCHER_H_
+#ifndef SERVER_BACKEND_DOCLIST_ENTRY_MATCHER_H_
+#define SERVER_BACKEND_DOCLIST_ENTRY_MATCHER_H_
 
 #include "common/registerer.h"
-#include "server/searcher/comparer.h"
+#include "server/backend/comparer.h"
 
 #include <string>
 using std::string;
@@ -27,4 +27,4 @@ class DocListEntryMatcher {
   DO_NOT_COPY_AND_ASSIGN(DocListEntryMatcher);
 };
 
-#endif  // SERVER_SEARCHER_DOCLIST_ENTRY_MATCHER_H_
+#endif  // SERVER_BACKEND_DOCLIST_ENTRY_MATCHER_H_

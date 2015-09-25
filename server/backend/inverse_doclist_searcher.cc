@@ -1,8 +1,8 @@
-#include "server/searcher/inverse_doclist_searcher.h"
+#include "server/backend/inverse_doclist_searcher.h"
 
 #include "common/log.h"
 #include "common/util.h"
-#include "server/searcher/searcher.h"
+#include "server/backend/searcher.h"
 #include "thirdparty/cJSON.h"
 
 bool operator<(

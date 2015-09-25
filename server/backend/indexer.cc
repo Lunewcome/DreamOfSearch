@@ -1,9 +1,9 @@
-#include "server/searcher/indexer.h"
+#include "server/backend/indexer.h"
 
 #include "common/flags.h"
 #include "common/log.h"
-#include "server/searcher/doc_reader.h"
-#include "server/searcher/field.h"
+#include "server/backend/doc_reader.h"
+#include "server/backend/field.h"
 
 DEFINE_bool(show_index, false, "");
 DEFINE_bool(dump_index, false, "");

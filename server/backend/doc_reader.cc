@@ -1,10 +1,10 @@
-#include "server/searcher/doc_reader.h"
+#include "server/backend/doc_reader.h"
 
 #include "common/log.h"
 #include "common/simple_line_reader.h"
 #include "common/string_util.h"
-#include "server/searcher/field.h"
-#include "server/searcher/raw_doc.h"
+#include "server/backend/field.h"
+#include "server/backend/raw_doc.h"
 
 void DocReader::Parse(const string& path) {
   const string& data_file = path + ".data";

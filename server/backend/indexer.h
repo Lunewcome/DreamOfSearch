@@ -3,14 +3,14 @@
  * luxinlai
  * 2015-08-25
  */
-#ifndef SERVER_SEARCHER_INDEXER_H_
-#define SERVER_SEARCHER_INDEXER_H_
+#ifndef SERVER_BACKEND_INDEXER_H_
+#define SERVER_BACKEND_INDEXER_H_
 
 #include "common/basics.h"
 #include "common/shared_ptr.h"
 #include "common/string_util.h"
-#include "server/searcher/doc_reader.h"
-#include "server/searcher/raw_doc.h"
+#include "server/backend/doc_reader.h"
+#include "server/backend/raw_doc.h"
 #include "thirdparty/cJSON.h"
 
 #include <algorithm>
@@ -248,4 +248,4 @@ class Indexer {
   DO_NOT_COPY_AND_ASSIGN(Indexer);
 };
 
-#endif  // SERVER_SEARCHER_INDEXER_H_
+#endif  // SERVER_BACKEND_INDEXER_H_
