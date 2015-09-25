@@ -156,16 +156,10 @@ bool InverseDoclistSearcher::HitDoc(
       break;
     }
   }
-  if (hit) {
-    min_heap->swap(*new_heap);
-    Log::WriteToDisk(DEBUG, "hit.");
-    return true;
-  } else {
-    while (!new_heap->empty()) {
-      min_heap->push(new_heap->top());
-      new_heap->pop();
-    }
-    Log::WriteToDisk(DEBUG, "miss.");
-    return false;
+  while (!new_heap->empty()) {
+    min_heap->push(new_heap->top());
+    new_heap->pop();
   }
+  Log::WriteToDisk(DEBUG, "%s.", hit ? "hit" : "miss");
+  return hit;
 }

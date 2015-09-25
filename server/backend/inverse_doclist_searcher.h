@@ -7,8 +7,6 @@
 
 #include "common/basics.h"
 #include "server/backend/indexer.h"
-#include "server/backend/doclist_entry_generic_matcher.h"
-#include "server/backend/doclist_entry_matcher.h"
 #include "server/backend/raw_doc.h"
 
 #include <queue>
