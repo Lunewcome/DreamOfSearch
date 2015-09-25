@@ -34,7 +34,7 @@ void InverseDoclistSearcher::SearchDocId(
 
   priority_queue<QueueItem> doc_id_min_heap;
   // init
-  DocId max_doc_id = -1;
+  DocId max_doc_id = 0;
   for (size_t i = 0; i < hit_doc_lists.size(); ++i) {
     if (hit_doc_lists[i]->Size() > 0) {
       QueueItem item(hit_doc_lists[i]->GetDocId(0), 1, i);
@@ -113,9 +113,11 @@ void InverseDoclistSearcher::SearchDocId(
         doc_id_idx);
     item.next_doc_id_idx = doc_id_idx + 1;
     doc_id_min_heap.push(item);
+    if (item.doc_id > max_doc_id) {
+      max_doc_id = item.doc_id;
+    }
     Log::WriteToDisk(DEBUG,
-                     "Forward %ld to %ld", max_doc_id,
-                     item.doc_id);
+                     "Forward to %ld", max_doc_id);
   }
 }
 
@@ -133,6 +135,7 @@ bool InverseDoclistSearcher::HitDoc(
   }
   priority_queue<QueueItem>* new_heap =
       new priority_queue<QueueItem>();
+  bool hit = true;
   while (!min_heap->empty()) {
     const QueueItem& item = min_heap->top();
     new_heap->push(item);
@@ -149,10 +152,11 @@ bool InverseDoclistSearcher::HitDoc(
                        req_field.c_str(),
                        cur_entry.GetDocId(),
                        cur_entry.GetAllFields().c_str());
+      hit = false;
       break;
     }
   }
-  if (min_heap->empty()) {
+  if (hit) {
     min_heap->swap(*new_heap);
     Log::WriteToDisk(DEBUG, "hit.");
     return true;

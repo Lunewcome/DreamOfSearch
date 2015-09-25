@@ -14,20 +14,6 @@ using std::vector;
 
 struct cJSON;
 
-typedef struct Request {
-  double lon;
-  double lat;
-  uint32 radius;
-} Request;
-
-typedef struct Response {
-  uint32 loc_id;  // 区或者县的id
-  string name;  // 区或者县的名称
-  float longtitude;
-  float latitude;
-  double dist;
-} Response;
-
 class HttpBackend {
  public:
   HttpBackend(int v, shared_ptr<HttpServer> server, bool is_instant)
@@ -42,8 +28,6 @@ class HttpBackend {
   // http callbacks.
   static void SearchSupply(evhtp_request_t* req,
                            void* arg);
-  static void SearchPurchase(evhtp_request_t* req,
-                             void* arg);
   // for instant search only.
   static void AddNewDataToIndex(evhtp_request_t* req,
                                 void* arg);
@@ -65,10 +49,6 @@ class HttpBackend {
 
  private:
   void Init();
-  static void HttpProcessCommon(
-      const string& processor_name,
-      evhtp_request_t* req,
-      void* arg);
 
   const int log_v_;
   shared_ptr<Searcher> searcher_;

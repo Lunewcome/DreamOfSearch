@@ -104,7 +104,7 @@ void HttpServer::GetParams(
 }
 
 void HttpServer::SendReply(evhtp_request_t* req,
-                           const char* reply) {
+                           const char* reply) const {
   evbuffer_add_printf(req->buffer_out, "%s", reply);
   evhtp_send_reply(req, EVHTP_RES_OK);
 }

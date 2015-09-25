@@ -20,15 +20,18 @@ using std::vector;
 
 class DocReader {
  public:
-  DocReader() : doc_itrt_(0), doc_id_counter_(1) {}
+  DocReader() : doc_itrt_(0), doc_id_counter_(0) {}
   virtual ~DocReader() {}
   void LoadFieldAttr(const string& file);
   virtual void Parse(const string& path);
   virtual void AddDoc(const string& line_doc);
+  virtual const RawDoc* GetRawDoc(size_t i) const {
+    return docs_[i].get();
+  }
   virtual bool Next() const {
     return doc_itrt_ < docs_.size();
   }
-  virtual const RawDoc& GetDoc() {
+  virtual const RawDoc& Get() {
     return *(docs_[doc_itrt_++].get());
   }
   virtual const vector<FieldAttribute>& GetFieldAttr() const {

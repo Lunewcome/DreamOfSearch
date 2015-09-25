@@ -41,13 +41,15 @@ cJSON* Searcher::SearchSupply(
       "search cost(us)",
       cJSON_CreateNumber(end - start));
 
+  const shared_ptr<DocReader>& reader =
+      supply_indexer_->GetDocReader();
   cJSON* reply = cJSON_CreateObject();
   string ids_str;
   for (size_t i = 0; i < ids.size(); ++i) {
     StringAppendF(&ids_str,
-    "%ld%c",
-    ids[i],
-    i == (ids.size() - 1) ? '\0' : ',');
+                  "%s%c",
+                  reader->GetRawDoc(ids[i])->GetField(0).ToString().c_str(),
+                  i == (ids.size() - 1) ? '\0' : ',');
   }
   cJSON_AddItemToObject(
       reply,
@@ -94,7 +96,7 @@ cJSON* Searcher::AddNewDataToIndex(
   BuildDocIntoReader(params, running_info, &err_msg);
   int i = 0;
   while (reader->Next()) {
-    supply_indexer_->AddDocToIndex(reader->GetDoc());
+    supply_indexer_->AddDocToIndex(reader->Get());
     ++i;
   }
   cJSON* reply = cJSON_CreateObject();

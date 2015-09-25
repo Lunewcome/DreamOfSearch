@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-class Processor : public CallBackWapperBase {
+class Processor : public CallBackWrapperBase {
  public:
   Processor() {}
   virtual ~Processor() {}
@@ -25,7 +25,7 @@ int main() {
   HttpClient* hc = new HttpClient("127.0.0.1", 8384);
 
   long long beg = ustime();
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 10; ++i) {
     hc->AddRequest("/spl?breed_id=9894", p1);
   }
   long long end = ustime();

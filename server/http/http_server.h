@@ -1,5 +1,5 @@
 /**
- * A httpserver wapper for libevhtp.
+ * A httpserver wrapper for libevhtp.
  */
 #ifndef SERVER_SEARCHER_HTTP_SERVER_H_
 #define SERVER_SEARCHER_HTTP_SERVER_H_
@@ -37,7 +37,11 @@ class HttpServer {
                  cJSON* running_info) const;
   void AddCB(const string& path, HttpCB cb, void* arg);
   void SendReply(evhtp_request_t* req,
-                 const char* reply);
+                 const char* reply) const;
+  void SendReply(evhtp_request_t* req,
+                 const string& reply) const {
+    SendReply(req, reply.c_str());
+  }
 
  private:
   void Init();

@@ -21,9 +21,6 @@ void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_supply,
                       SearchSupply,
                       this);
-  http_server_->AddCB(FLAGS_query_purchase,
-                      SearchPurchase,
-                      this);
   if (is_instant_searcher_) {
     http_server_->AddCB(FLAGS_query_add_new,
                         AddNewDataToIndex,
@@ -71,11 +68,6 @@ void HttpBackend::SearchSupply(
   cJSON_free(info);
 }
 
-void HttpBackend::SearchPurchase(
-    evhtp_request_t* req,
-    void* arg) {
-}
-
 void HttpBackend::AddNewDataToIndex(
     evhtp_request_t* req,
     void* arg) {
@@ -104,12 +96,6 @@ void HttpBackend::AddNewDataToIndex(
   cJSON_Delete(running_info);
   Log::WriteToBuffer(WARN, info);
   cJSON_free(info);
-}
-
-void HttpBackend::HttpProcessCommon(
-    const string& processor_name,
-    evhtp_request_t* req,
-    void* arg) {
 }
 
 void HttpBackend::Status(evhtp_request_t* req,

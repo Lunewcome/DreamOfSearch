@@ -9,10 +9,10 @@
 
 struct CallBackParams {
   CallBackParams(HttpClient* c,
-                 CallBackWapperBase* w)
+                 CallBackWrapperBase* w)
       : client(c), wrapper(w) {}
   HttpClient* client;
-  CallBackWapperBase* wrapper;
+  CallBackWrapperBase* wrapper;
 };
 
 HttpClient::~HttpClient() {
@@ -50,7 +50,7 @@ void HttpClient::Init() {
 
 void HttpClient::AddRequest(
     const string& uri,
-    CallBackWapperBase& cbw) {
+    CallBackWrapperBase& cbw) {
 //  if (!IsConnected()) {
 //    Log::WriteToDisk(
 //        ERROR,
@@ -79,7 +79,7 @@ void HttpClient::AddRequest(
 
 void HttpClient::GeneralCallback(evhtp_request_t* req, void* arg) {
   CallBackParams* params = static_cast<CallBackParams*>(arg);
-  CallBackWapperBase* wrapper = params->wrapper;
+  CallBackWrapperBase* wrapper = params->wrapper;
   HttpClient* client = params->client;
   wrapper->Process(*client, req);
   evhtp_request_free(req);

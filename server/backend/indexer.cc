@@ -20,7 +20,7 @@ void Indexer::SetDocSource(const string& reader_name) {
 
 void Indexer::Build() {
   while (reader_->Next()) {
-    const RawDoc& doc = reader_->GetDoc();
+    const RawDoc& doc = reader_->Get();
     AddDocToIndex(doc);
   }
   Finalize();

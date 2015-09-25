@@ -1,5 +1,5 @@
 /**
- * A httpclient wapper for libevent.
+ * A httpclient wrapper for libevent.
  * Sadly, this is a blocking client.
  */
 #ifndef SERVER_HTTP_HTTP_CLIENT_H_
@@ -14,11 +14,11 @@
 #include <string>
 using std::string;
 
-class CallBackWapperBase;
+class CallBackWrapperBase;
 
 // How to use:
 // ...
-// shared_ptr<CallBackWapper> cbw(new CallbackProcessor());
+// shared_ptr<CallBackWrapperBase> cbw(new CallbackProcessor());
 // shared_ptr<HttpClient> hc(new HttpClient((ip, port));
 // hc->AddRequest(uri, *cbw.get());
 // ...
@@ -40,7 +40,7 @@ class HttpClient {
     return eb_ && conn_ && conn_->connected;
   }
   void AddRequest(const string& uri,
-                  CallBackWapperBase& cbw);
+                  CallBackWrapperBase& cbw);
   // Get buffer content.
   // *response is goning to be modified to point to
   // a block of new memory which should be freed
