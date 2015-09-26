@@ -12,6 +12,7 @@ void DocReader::Parse(const string& path) {
   vector<string> lines;
   // This is a little bad...
   slr.ReadLines(&lines);
+  docs_.reserve(lines.size());
   for (size_t i = 0; i < lines.size(); ++i) {
     AddDoc(lines[i]);
   }
@@ -27,12 +28,12 @@ void DocReader::AddDoc(const string& line_doc) {
                      line_sp.size());
     return;
   }
-  shared_ptr<RawDoc> doc(new RawDoc());
-  for (size_t sp = 0; sp < line_sp.size(); ++sp) {
-    shared_ptr<Field> fld(
-        new Field(field_attr_[sp].name,
-                  line_sp[sp]));
-    doc->AddField(fld);
+  shared_ptr<RawDoc> doc(new RawDoc(spec_num_));
+  for (size_t fn = 0; fn < line_sp.size(); ++fn) {
+//    if (ShouldStore(fn) || ShouldIndex(fn)) {
+      shared_ptr<Field> fld(new Field(fn, line_sp[fn]));
+      doc->AddField(fld);
+//    }
   }
   // sequential doc id.
   doc->SetDocId(doc_id_counter_++);
@@ -45,6 +46,9 @@ void DocReader::LoadFieldAttr(
   vector<string> lines;
   slr.ReadLines(&lines);
   spec_num_ = lines.size();
+  field_attr_.reserve(spec_num_);
+  field_should_store_.reserve(spec_num_);
+  field_should_index_.reserve(spec_num_);
   bool init = true;
   size_t col_num = 0;
   for (size_t i = 0; i < lines.size(); ++i) {
@@ -65,6 +69,10 @@ void DocReader::LoadFieldAttr(
     StringToInt(line_sp[1], &type);
     StringToInt(line_sp[2], &should_store);
     StringToInt(line_sp[3], &should_index);
+//    // Skip useless field.
+//    if (!should_store && !should_index) {
+//      continue;
+//    }
     FieldAttribute fa = {
       line_sp[0],
       type,
@@ -72,7 +80,7 @@ void DocReader::LoadFieldAttr(
       should_index
     };
     field_attr_.push_back(fa);
-    field_str_map_[line_sp[0]] = should_store;
-    field_idx_map_[line_sp[0]] = should_index;
+    field_should_index_.push_back(should_index);
+    field_should_store_.push_back(should_store);
   }
 }

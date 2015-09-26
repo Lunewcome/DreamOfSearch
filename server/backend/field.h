@@ -10,12 +10,6 @@
 #include <string>
 using std::string;
 
-enum FieldType {
-  Int,
-  Double,
-  String,
-};
-
 struct FieldAttribute {
   string name;
   int type;
@@ -23,12 +17,16 @@ struct FieldAttribute {
   int should_index;
 };
 
+typedef unsigned char FieldSeq;
+
 class Field {
  public:
-  Field(const string& name,
+  Field(FieldSeq field_seq_num,
         const string& value)
-      : field_name_(name),
-        val_(value) {}
+      : field_seq_num_(field_seq_num) {
+    val_.reserve(value.size());
+    val_ = value;
+  }
   ~Field() {}
   inline size_t TokenNum() const {
     return 1;
@@ -36,8 +34,8 @@ class Field {
   inline const string& GetToken(int idx = 0) const {
     return val_;
   }
-  inline const string& GetName() const {
-    return field_name_;
+  inline FieldSeq GetFieldSeqNum() const {
+    return field_seq_num_;
   }
   inline int ToInt() const {
     int tmp;
@@ -54,8 +52,8 @@ class Field {
   }
 
  private:
-  const string field_name_;
-  const string val_;
+  FieldSeq field_seq_num_;
+  string val_;
 
   DO_NOT_COPY_AND_ASSIGN(Field);
 };

@@ -16,11 +16,9 @@
 #include <algorithm>
 
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 using std::map;
-using std::set;
 using std::string;
 using std::vector;
 
@@ -33,35 +31,45 @@ class DocListEntry {
   inline DocId GetDocId() const {
     return doc_id_;
   }
-  inline void AddField(const string& field_name) {
-    fields_.insert(field_name);
+
+  inline void AddField(FieldSeq field_seq_num) {
+    fields_.push_back(field_seq_num);
   }
+//  inline void AddField(const string& field_name) {
+//    fields_.push_back(field_name);
+//  }
+
   inline bool HitEntry(DocId doc_id,
-                       const string& field_name) const {
-    return (doc_id == GetDocId()) and HitField(field_name);
+                       FieldSeq field_seq_num) const {
+    return (doc_id == GetDocId()) and HitField(field_seq_num);
   }
-  inline bool HitField(const string& field_name) const {
-    set<string>::const_iterator itrt =
-        fields_.find(field_name);
-    return itrt != fields_.end();
+  inline bool HitField(FieldSeq field_seq_num) const {
+    for (size_t i = 0; i < fields_.size(); ++i) {
+      if (fields_[i] == field_seq_num) {
+        return true;
+      }
+    }
+    return false;
   }
   // for debug.
   const string GetAllFields() const {
     string flds;
-    for (set<string>::const_iterator itrt = fields_.begin();
+    for (vector<FieldSeq>::const_iterator itrt =
+             fields_.begin();
          itrt != fields_.end();
          ++itrt) {
-      StringAppendF(&flds, "%s,", itrt->c_str());
+      StringAppendF(&flds, "%d,", *itrt);
     }
     return flds;
   }
   const string PrintDocListEntry() const {
     string df;
     StringPrintf(&df, "(doc_id=%ld,field=", doc_id_);
-    for (set<string>::const_iterator itrt = fields_.begin();
+    for (vector<FieldSeq>::const_iterator itrt =
+             fields_.begin();
          itrt != fields_.end();
          ++itrt) {
-      StringAppendF(&df, "%s,", itrt->c_str());
+      StringAppendF(&df, "%d,", *itrt);
     }
     df[df.size() - 1] = ')';
     return df;
@@ -69,7 +77,7 @@ class DocListEntry {
 
  private:
   DocId doc_id_;
-  set<string> fields_;
+  vector<FieldSeq> fields_;
 
   DO_NOT_COPY_AND_ASSIGN(DocListEntry);
 };
@@ -96,6 +104,12 @@ class InverseDocList {
          doc_list_.end(),
          Compare);
     // free the memory.
+    vector<shared_ptr<DocListEntry> > new_doc_list;
+    new_doc_list.reserve(doc_list_.size());
+    for (size_t i = 0; i < doc_list_.size(); ++i) {
+      new_doc_list.push_back(doc_list_[i]);
+    }
+    doc_list_.swap(new_doc_list);
     map<DocId, int> tmp;
     doc_id_pos_map_.swap(tmp);
   }
@@ -152,60 +166,19 @@ class InverseDocList {
   DO_NOT_COPY_AND_ASSIGN(InverseDocList);
 };
 
-class IndexDoc {
+class DocInfo {
  public:
-  IndexDoc() : json_doc_(cJSON_CreateObject()),
-               str_doc_(NULL) {}
-  ~IndexDoc() {
-    if (json_doc_) {
-      cJSON_Delete(json_doc_);
-    }
-    if (str_doc_) {
-      cJSON_free(str_doc_);
-    }
-  }
-  // The result should be freed by IndexDoc.
-  const char* GetStringDoc() const {
-    str_doc_ = cJSON_Print(json_doc_);
-    return str_doc_;
-  }
-  void AddFloat(const string& name, float val) {
-    cJSON_AddItemToObject(json_doc_,
-                          name.c_str(),
-                          cJSON_CreateNumber(val));
-  }
-  void AddInt(const string& name, int val) {
-    cJSON_AddItemToObject(json_doc_,
-                          name.c_str(),
-                          cJSON_CreateNumber(val));
-  }
-  void AddString(const string& name, const string& val) {
-    cJSON_AddItemToObject(
-        json_doc_,
-        name.c_str(),
-        cJSON_CreateString(val.c_str()));
-  }
-  // A const cJSON* val??
-  void AddObj(const string& name, cJSON* val) {
-    cJSON_AddItemToObject(json_doc_, name.c_str(), val);
-  }
-  // val should be invalid after added.
-  void AddObj(const string& name, IndexDoc& val) {
-    cJSON_AddItemToObject(
-        json_doc_,
-        name.c_str(),
-        val.GetJSON());
+  DocInfo() {}
+  void AddField(const FieldSeq field_seq_num,
+                const string& val) {
+    shared_ptr<Field> fld(new Field(field_seq_num, val));
+    fields_.push_back(fld);
   }
 
  private:
-  cJSON* GetJSON() {
-    return json_doc_;
-  }
+  vector<shared_ptr<Field> > fields_;
 
-  cJSON* json_doc_;
-  mutable char* str_doc_;
-
-  DO_NOT_COPY_AND_ASSIGN(IndexDoc);
+  DO_NOT_COPY_AND_ASSIGN(DocInfo);
 };
 
 class Indexer {
@@ -215,7 +188,12 @@ class Indexer {
   void SetDocSource(const string& reader_name);
   void AddDocToIndex(const RawDoc& doc);
   void Build();
-  shared_ptr<DocReader>& GetDocReader() {
+  const string& FromDocIdToRawDocId(DocId docid) const {
+    return local_docid_to_raw_id_[docid];
+  }
+  // This is !!!ONLY!!! used for instant search to
+  // index new docs.
+  shared_ptr<DocReader>& GetDocReaderForInstant() {
     return reader_;
   }
   bool GetInverseDocList(
@@ -229,7 +207,6 @@ class Indexer {
     *obj = idx_itrt->second;
     return true;
   }
-
   void DumpIndex() const;
 
  private:
@@ -237,12 +214,8 @@ class Indexer {
 
   shared_ptr<DocReader> reader_;
   map<string, shared_ptr<InverseDocList> > index_;
-  map<string, uint32> field_name_id_map_;
-
-  vector<uint32> doc_ids_;
-  map<uint32, uint32> doc_id_idx_map_;
-  map<int, shared_ptr<IndexDoc> > indexed_doc_;
-
+  vector<shared_ptr<DocInfo> > doc_info_;
+  vector<string> local_docid_to_raw_id_;
   string prefix_;
 
   DO_NOT_COPY_AND_ASSIGN(Indexer);

@@ -41,15 +41,14 @@ cJSON* Searcher::SearchSupply(
       "search cost(us)",
       cJSON_CreateNumber(end - start));
 
-  const shared_ptr<DocReader>& reader =
-      supply_indexer_->GetDocReader();
   cJSON* reply = cJSON_CreateObject();
   string ids_str;
   for (size_t i = 0; i < ids.size(); ++i) {
-    StringAppendF(&ids_str,
-                  "%s%c",
-                  reader->GetRawDoc(ids[i])->GetField(0).ToString().c_str(),
-                  i == (ids.size() - 1) ? '\0' : ',');
+    StringAppendF(
+        &ids_str,
+        "%s%c",
+        supply_indexer_->FromDocIdToRawDocId(ids[i]).c_str(),
+        i == (ids.size() - 1) ? '\0' : ',');
   }
   cJSON_AddItemToObject(
       reply,
@@ -91,7 +90,7 @@ cJSON* Searcher::AddNewDataToIndex(
     const map<string, string>& params,
     cJSON* running_info) {
   shared_ptr<DocReader> reader =
-      supply_indexer_->GetDocReader();
+      supply_indexer_->GetDocReaderForInstant();
   string err_msg;
   BuildDocIntoReader(params, running_info, &err_msg);
   int i = 0;
@@ -118,7 +117,7 @@ void Searcher::BuildDocIntoReader(
     cJSON* running_info,
     string* err_msg) {
   shared_ptr<DocReader> reader =
-      supply_indexer_->GetDocReader();
+      supply_indexer_->GetDocReaderForInstant();
   string line_doc;
   const vector<FieldAttribute>& fa = reader->GetFieldAttr();
   size_t counter = fa.size();

@@ -42,7 +42,7 @@ class InverseDoclistSearcher {
   bool HitDoc(
       const DocId max_doc_id,
       const vector<shared_ptr<InverseDocList> >& doc_lists,
-      const vector<string>& fields,
+      const vector<FieldSeq>& fields,
       priority_queue<QueueItem>* min_heap) const;
 
   shared_ptr<Indexer> index_;

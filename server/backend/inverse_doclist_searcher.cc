@@ -18,7 +18,7 @@ void InverseDoclistSearcher::SearchDocId(
     bool match_all_key) {
   Log::WriteToDisk(DEBUG, "begin.");
   vector<shared_ptr<InverseDocList> > hit_doc_lists;
-  vector<string> requested_fields;
+  vector<FieldSeq> requested_fields;
   for (size_t i = 0; i < request.params.size(); ++i) {
     shared_ptr<InverseDocList> idl;
     bool hit = index_->GetInverseDocList(
@@ -27,8 +27,8 @@ void InverseDoclistSearcher::SearchDocId(
     if (!hit && match_all_key) {
       continue;
     }
-    requested_fields.push_back(
-        request.params[i]->GetFieldName());
+    FieldSeq seq = index_->GetDocReaderForInstant()->GetFieldIndex(request.params[i]->GetFieldName());
+    requested_fields.push_back(seq);
     hit_doc_lists.push_back(idl);
   }
 
@@ -124,7 +124,7 @@ void InverseDoclistSearcher::SearchDocId(
 bool InverseDoclistSearcher::HitDoc(
     const DocId max_doc_id,
     const vector<shared_ptr<InverseDocList> >& doc_lists,
-    const vector<string>& fields,
+    const vector<FieldSeq>& fields,
     priority_queue<QueueItem>* min_heap) const {
   if (min_heap->top().doc_id != max_doc_id ) {
     Log::WriteToDisk(DEBUG,
@@ -142,14 +142,14 @@ bool InverseDoclistSearcher::HitDoc(
     int idx = item.list_idx;
     const shared_ptr<InverseDocList>& idl = doc_lists[idx];
     int cur_doc_id_idx = item.next_doc_id_idx - 1;
-    const string& req_field = fields[idx];
+    FieldSeq req_field = fields[idx];
     const DocListEntry& cur_entry =
         idl->GetEntry(cur_doc_id_idx);
     min_heap->pop();
     if (!cur_entry.HitField(req_field)) {
       Log::WriteToDisk(DEBUG,
-                       "%s is not in entry(docid:%ld,%s).",
-                       req_field.c_str(),
+                       "%d is not in entry(docid:%ld,%s).",
+                       req_field,
                        cur_entry.GetDocId(),
                        cur_entry.GetAllFields().c_str());
       hit = false;

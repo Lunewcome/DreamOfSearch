@@ -10,13 +10,19 @@
 #include <vector>
 using std::vector;
 
-typedef int64 DocId;
+typedef int DocId;
 class Field;
 
 class RawDoc {
  public:
-  RawDoc() {}
+  RawDoc(int fields_num) {
+    fields_.reserve(fields_num);
+  }
   ~RawDoc() {}
+  // This is somehow triky. Default is 0(the first col).
+  inline const string& GetRawDocId(int idx = 0) const {
+    return fields_[idx]->ToString();
+  }
   inline void SetDocId(DocId id) {
     id_ = id;
   }
@@ -37,8 +43,6 @@ class RawDoc {
  private:
   DocId id_;
   vector<shared_ptr<Field> > fields_;
-
-  vector<FieldAttribute> field_attr_;
 
   DO_NOT_COPY_AND_ASSIGN(RawDoc);
 };
