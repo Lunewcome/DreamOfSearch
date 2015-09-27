@@ -11,5 +11,7 @@ cc_library (
   deps = [
     '//common:base',
     '//server/http:http_server',
-    '//thirdparty:cjson']
+    '//server/backend/thrift:doc_info',
+    '//thirdparty:cjson',
+    ]
 )

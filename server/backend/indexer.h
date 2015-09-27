@@ -11,6 +11,7 @@
 #include "common/string_util.h"
 #include "server/backend/doc_reader.h"
 #include "server/backend/raw_doc.h"
+#include "server/backend/thrift/gen-cpp/doc_info_types.h"
 #include "thirdparty/cJSON.h"
 
 #include <algorithm>
@@ -164,21 +165,6 @@ class InverseDocList {
   map<DocId, int> doc_id_pos_map_;
 
   DO_NOT_COPY_AND_ASSIGN(InverseDocList);
-};
-
-class DocInfo {
- public:
-  DocInfo() {}
-  void AddField(const FieldSeq field_seq_num,
-                const string& val) {
-    shared_ptr<Field> fld(new Field(field_seq_num, val));
-    fields_.push_back(fld);
-  }
-
- private:
-  vector<shared_ptr<Field> > fields_;
-
-  DO_NOT_COPY_AND_ASSIGN(DocInfo);
 };
 
 class Indexer {
