@@ -6,8 +6,6 @@ cmd="$path/search_instant
   --daemonize=true
   --log_file=$path/search_instant.log
   --v=2
-  --supply_data_prefix=$path/../db_datas/supplies
-  --dump_index=true
   --is_instant_searcher=true
 "
 echo $cmd

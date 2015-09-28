@@ -1,9 +1,7 @@
-#! /bin/sh
-
 pid_file="search_instant.pid"
 running_cmd_name=`pwd`"/search_instant"
 
-function KillByPidFile() {
+KillByPidFile() {
   pid=`cat $1`
   running_pid=`ps aux | grep $1 | grep -v "grep" | awk -F' ' '{print $2}'`
   if [ "$running_pid" == "$pid" ]; then
@@ -14,7 +12,7 @@ function KillByPidFile() {
   fi
 }
 
-function KillByPS() {
+KillByPS() {
   pid=`ps aux | grep $1 | grep -v "grep" | awk -F' ' '{print $2}'`
   if [ "$pid" == "" ]; then
     echo "No such a process!"

@@ -81,7 +81,7 @@ void HttpClient::GeneralCallback(evhtp_request_t* req, void* arg) {
   CallBackParams* params = static_cast<CallBackParams*>(arg);
   CallBackWrapperBase* wrapper = params->wrapper;
   HttpClient* client = params->client;
-  wrapper->Process(*client, req);
+  wrapper->ProcessClientReq(*client, req);
   evhtp_request_free(req);
   delete params;
   event_base_loopbreak(client->GetEb());

@@ -11,8 +11,9 @@ class GeneralCallbackWrapper : public CallBackWrapperBase {
  public:
   GeneralCallbackWrapper() {}
   virtual ~GeneralCallbackWrapper() {}
-  virtual void Process(const string& response,
-                       evhtp_request_t* req) {
+  virtual void ProcessStringReq(
+      const string& response,
+      evhtp_request_t* req) {
     resp_ += response;
   }
   const string& GetFinalResponse() const {

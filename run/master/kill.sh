@@ -1,5 +1,3 @@
-#! /bin/sh
-
 pid_file="search_root.pid"
 running_cmd_name=`pwd`"/search_root"
 

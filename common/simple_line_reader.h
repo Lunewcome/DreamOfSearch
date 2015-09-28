@@ -8,6 +8,8 @@
 #include "common/basics.h"
 #include "common/callback.h"
 
+#include <cstdlib>
+
 #include <fstream>
 #include <vector>
 #include <string>

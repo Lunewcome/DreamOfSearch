@@ -8,7 +8,7 @@ sh run.sh
 cd -
 
 
-sleep 10
+sleep 40
 cd master
 sh run.sh
 cd -

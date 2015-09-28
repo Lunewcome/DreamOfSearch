@@ -10,14 +10,14 @@ class CallBackWrapperBase {
  public:
   CallBackWrapperBase() {}
   virtual ~CallBackWrapperBase() {}
-  virtual void Process(const HttpClient& client,
-                       evhtp_request_t* req) {
+  virtual void ProcessClientReq(const HttpClient& client,
+                                evhtp_request_t* req) {
     string resp;
     client.GetResponse(req, &resp);
-    Process(resp, req);
+    ProcessStringReq(resp, req);
   }
-  virtual void Process(const string& response,
-                       evhtp_request_t* req) = 0;
+  virtual void ProcessStringReq(const string& response,
+                                evhtp_request_t* req) = 0;
 
  private:
 
