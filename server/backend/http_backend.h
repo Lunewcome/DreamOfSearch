@@ -29,8 +29,8 @@ class HttpBackend {
   static void SearchSupply(evhtp_request_t* req,
                            void* arg);
   // for instant search only.
-  static void AddNewDataToIndex(evhtp_request_t* req,
-                                void* arg);
+  static void AddNewDoc(evhtp_request_t* req,
+                        void* arg);
   static void Status(evhtp_request_t* req,
                      void* arg);
   inline void GetParams(evhtp_request_t* req,

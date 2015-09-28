@@ -6,44 +6,39 @@
 #define SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_
 
 #include "common/basics.h"
+#include "common/shared_ptr.h"
 #include "server/backend/indexer.h"
-#include "server/backend/raw_doc.h"
+#include "blade-bin/server/backend/proto/doc_info.pb.h"
+#include "blade-bin/server/backend/proto/raw_doc.pb.h"
 
 #include <queue>
 using std::priority_queue;
 
-struct SearchRequest;
 struct cJSON;
+class RequestParams;
 
 class InverseDoclistSearcher {
  public:
   InverseDoclistSearcher(const shared_ptr<Indexer>& idx)
       : index_(idx) {}
   ~InverseDoclistSearcher() {}
-  void SearchDocId(const SearchRequest& keys,
+  void SearchDocId(const RequestParams& request,
                    vector<DocId>* ids,
                    cJSON* running_info,
                    bool match_all_key = true);
 
  private:
   struct QueueItem {
-    QueueItem(DocId id, size_t id_idx, int idx)
+    QueueItem(DocId id, size_t next_id_idx, int idx_list)
         : doc_id(id),
-          next_doc_id_idx(id_idx),
-          list_idx(idx) {}
+          next_doc_id_idx(next_id_idx),
+          list_idx(idx_list) {}
     DocId doc_id;
     size_t next_doc_id_idx;
     int list_idx;
-//   private:
-//    DO_NOT_COPY_AND_ASSIGN(QueueItem);
   };
-  friend bool operator<(const QueueItem& qi1,
-                        const QueueItem& qi2);
-  bool HitDoc(
-      const DocId max_doc_id,
-      const vector<shared_ptr<InverseDocList> >& doc_lists,
-      const vector<FieldSeq>& fields,
-      priority_queue<QueueItem>* min_heap) const;
+  friend bool operator<(const shared_ptr<QueueItem>& qi1,
+                        const shared_ptr<QueueItem>& qi2);
 
   shared_ptr<Indexer> index_;
 

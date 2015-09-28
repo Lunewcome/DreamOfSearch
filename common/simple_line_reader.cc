@@ -2,30 +2,31 @@
 */
 #include "common/simple_line_reader.h"
 
-#include <cstdlib>
-#include <fstream>
-using std::ifstream;
-
 void SimpleLineReader::ReadLines(
-    vector<string>* lines) const {
-  ifstream file(file_name_.c_str());
-  if (!file.is_open()) {
-    abort();
-  }
-  string line_buf;
-  while (getline(file, line_buf)) {
-    if (line_buf.empty() && skip_empty_) {
+    vector<string>* lines) {
+  while (getline(file_, line_buf_)) {
+    if (line_buf_.empty() && skip_empty_) {
       continue;
     }
-    lines->push_back(line_buf);
+    lines->push_back(line_buf_);
   }
 }
 
 void SimpleLineReader::AppendLinesToString(
-    string* buf) const {
+    string* buf) {
   vector<string> lines;
   ReadLines(&lines);
   for (size_t i = 0; i < lines.size(); ++i) {
     *buf += lines[i];
+  }
+}
+
+void SimpleLineReader::ProcessLines(
+    Closure<string>* closure) {
+  while (getline(file_, line_buf_)) {
+    if (line_buf_.empty() && skip_empty_) {
+      continue;
+    }
+    closure->Run(line_buf_);
   }
 }

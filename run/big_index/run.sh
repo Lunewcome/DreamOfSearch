@@ -7,10 +7,8 @@ cmd="$path/search_backend
   --log_file=$path/search_backend.log
   --v=2
   --server_thread_num=4
-  --supply_data_prefix=$path/../db_datas/supplies
-  --field1=mobile
-  --field2=breed_id
-  --dump_index=true
+  --supply_data=$path/../db_datas/supplies.data
+  --dump_index=false
   --is_instant_searcher=false
 "
 echo $cmd

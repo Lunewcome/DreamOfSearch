@@ -1,0 +1,16 @@
+message IndexSearchCommonNames {
+  required string product_id = 1
+    [default = "product_id"];
+  required string breed_id = 2
+    [default = "breed_id"];
+  required string supply_province_id = 3
+    [default = "province_id"];
+  required string supply_city_id = 4
+    [default = "city_id"];
+  required string supply_county_id = 5
+    [default = "county_id"];
+  required string page_size = 6
+    [default = "page_size"];
+  required string page_no = 7
+    [default = "page_no"];
+}
