@@ -24,10 +24,13 @@ void StringPrintf(std::string* dst,
                   ...);
 
 bool StringToInt(const std::string& input, int* output);
+int StringToInt(const std::string& input);
 
 bool StringToInt64(const std::string& input, int64* output);
+int64 StringToInt64(const std::string& input);
 
 bool StringToDouble(const std::string& input, double* output);
+double StringToDouble(const std::string& input);
 
 void StringToDouble(const std::string& input,
                     char delemiter,
@@ -40,4 +43,5 @@ void SplitString(const char* in_str,
                  char delemiter,
                  std::vector<std::string>* results);
 
+bool HexStringToInt(const std::string& input, int* output);
 #endif  // BASE_STRING_UTIL_H_

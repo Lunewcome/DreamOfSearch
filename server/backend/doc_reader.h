@@ -1,5 +1,5 @@
 /*
- * Manager doc loader and parser.
+ * Manage doc loader and parser.
  * luxinlai
  * 2015-08-25
  */

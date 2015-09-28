@@ -223,3 +223,53 @@ void StringToDouble(const std::string& input,
     result->push_back(tmp);
   }
 }
+
+int StringToInt(const std::string& input) {
+  int tmp;
+  StringToInt(input, &tmp);
+  return tmp;
+}
+
+int64 StringToInt64(const std::string& input) {
+  int64 tmp;
+  StringToInt64(input, &tmp);
+  return tmp;
+}
+
+double StringToDouble(const std::string& input) {
+  double tmp;
+  StringToDouble(input, &tmp);
+  return tmp;
+}
+
+static unsigned int strtoui(const char *nptr, char **endptr, int base) {
+  uint64 res = strtoul(nptr, endptr, base);
+#if __LP64__
+  // Long is 64-bits, we have to handle under/overflow ourselves.  Test to see
+  // if the result can fit into 32-bits (as signed or unsigned).
+  if (static_cast<int>(static_cast<int32>(res)) != static_cast<int64>(res) &&
+      static_cast<unsigned int>(res) != res) {
+    res = kuint32max;
+    errno = ERANGE;
+  }
+#endif
+  return static_cast<unsigned int>(res);
+}
+
+class HexStringToIntTraits {
+  public:
+    typedef std::string string_type;
+    typedef int value_type;
+    static const int kBase = 16;
+    static inline value_type convert_func(const string_type::value_type* str,
+        string_type::value_type** endptr) {
+      return strtoui(str, endptr, kBase);
+    }
+    static inline bool valid_func(const string_type& str) {
+      return !str.empty() && !isspace(str[0]);
+    }
+};
+
+bool HexStringToInt(const std::string& input, int* output) {
+  return StringToNumber<HexStringToIntTraits>(input, output);
+}

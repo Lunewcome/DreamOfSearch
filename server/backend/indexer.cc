@@ -2,29 +2,20 @@
 
 #include "common/flags.h"
 #include "common/log.h"
-#include "server/backend/doc_reader.h"
 #include "server/backend/field.h"
 
-DEFINE_bool(show_index, false, "");
 DEFINE_bool(dump_index, false, "");
 
-Indexer::Indexer(const string& prefix) : prefix_(prefix) {
-  reader_.reset(new DocReader());
-  reader_->LoadFieldAttr(prefix + ".conf");
-  Log::WriteToDisk(WARN, prefix);
-}
-
-void Indexer::SetDocSource(const string& reader_name) {
-  reader_->Parse(prefix_);
-}
+#define IndexField(field)  \
+  IndexIntField(doc_id,  \
+                raw_doc->names().field(),  \
+                raw_doc->field());
 
 void Indexer::Build() {
   int count = 0;
-  doc_info_.reserve(reader_->DocsNum());
-  local_docid_to_raw_id_.reserve(reader_->DocsNum());
-  while (reader_->Next()) {
-    const RawDoc& doc = reader_->Get();
-    AddDocToIndex(doc);
+  while (doc_builder_->HasNext()) {
+    const shared_ptr<RawDoc>& raw_doc = doc_builder_->Get();
+    AddDocToIndex(raw_doc);
     if (count++ % 10000 == 0) {
       Log::WriteToDisk(WARN,
                        "Have indexed %d docs.",
@@ -32,11 +23,9 @@ void Indexer::Build() {
     }
   }
   Finalize();
-  Log::WriteToDisk(DEBUG, "Index Done!");
   if (FLAGS_dump_index) {
     DumpIndex();
   }
-  reader_->DeleteAllDocs();
 }
 
 void Indexer::Finalize() {
@@ -48,52 +37,56 @@ void Indexer::Finalize() {
   }
 }
 
-void Indexer::AddDocToIndex(const RawDoc& doc) {
- shared_ptr<DocInfo> doc_info(new DocInfo());
-  DocId doc_id = doc.GetDocId();
-  local_docid_to_raw_id_.push_back(doc.GetRawDocId());
-  for (size_t i = 0; i < doc.FieldNum(); ++i) {
-    const Field& field = doc.GetField(i);
-    for (size_t tn = 0; tn < field.TokenNum(); ++tn) {
-      const string& token = field.GetToken(tn);
-      if (reader_->ShouldStore(i)) {
-//        doc_info->AddField(field.GetFieldSeqNum(), token);
-      }
-      if (reader_->ShouldIndex(i)) {
-        map<string, shared_ptr<InverseDocList> >::iterator
-            itrt = index_.find(token);
-        if (itrt == index_.end()) {
-          index_[token].reset(new InverseDocList());
-          itrt = index_.find(token);
-        }
-        int pos = itrt->second->GetDocIdPos(doc_id);
-        if (pos == -1) {
-          shared_ptr<DocListEntry> entry(
-              new DocListEntry(doc_id));
-          entry->AddField(field.GetFieldSeqNum());
-          itrt->second->AddListEntry(entry);
-        } else {
-          DocListEntry& entry =
-              itrt->second->GetMutableEntry(pos);
-          entry.AddField(field.GetFieldSeqNum());
-        }
-      }
-    }
-    if (FLAGS_show_index) {
-      string tmp;
-      StringPrintf(
-          &tmp,
-          "id(%ld),name(%s),val(%s),str(%d),idx(%d)",
-          doc_id,
-          reader_->GetFieldName(i).c_str(),
-          field.ToString().c_str(),
-          reader_->ShouldStore(i),
-          reader_->ShouldIndex(i)
-      );
-      Log::WriteToDisk(DEBUG, tmp);
-    }
+void Indexer::AddDocToIndex(
+    const shared_ptr<RawDoc>& raw_doc) {
+  shared_ptr<DocInfo> doc_info(new DocInfo());
+  doc_info->set_raw_id(raw_doc->raw_id());
+  doc_info->set_supply_price_min(raw_doc->min_price());
+  doc_info->set_supply_price_max(raw_doc->max_price());
+  doc_info->set_spec(raw_doc->spec());
+  doc_info->set_pics(raw_doc->pics());
+  doc_info->set_customer_id(raw_doc->customer_id());
+  doc_info->set_updated_time(raw_doc->updated_time());
+  doc_info->set_created_time(raw_doc->created_time());
+  doc_info->set_supply_longitude(
+      raw_doc->supply_longitude());
+  doc_info->set_supply_latitude (
+      raw_doc->supply_latitude());
+  doc_infos_.push_back(doc_info);
+  docid_to_doc_infos_map_.push_back(&doc_infos_.back());
+
+  DocId doc_id = raw_doc->doc_id();
+
+  IndexField(product_id);
+  IndexField(breed_id);
+  IndexField(supply_province_id);
+  IndexField(supply_city_id);
+  IndexField(supply_county_id);
+
+  // range_key_maker_->MakeRange()...
+}
+
+void Indexer::IndexIntField(DocId doc_id,
+                            const string& field_name,
+                            int field_value) {
+  string val;
+  StringPrintf(&val, "%d", field_value);
+  IndexStrField(doc_id, field_name, val);
+}
+
+void Indexer::IndexStrField(DocId doc_id,
+                            const string& field_name,
+                            const string& field_value) {
+  string key;
+  MakeKey(field_name, field_value, &key);
+  map<string, shared_ptr<InverseDocList> >::iterator
+      itrt = index_.find(key);
+  if (itrt == index_.end()) {
+    index_[key].reset(new InverseDocList());
+    itrt = index_.find(key);
   }
-  doc_info_.push_back(doc_info);
+  shared_ptr<DocListEntry> entry(new DocListEntry(doc_id));
+  itrt->second->AddListEntry(entry);
 }
 
 void Indexer::DumpIndex() const {

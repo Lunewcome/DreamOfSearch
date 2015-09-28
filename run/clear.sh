@@ -1,13 +1,13 @@
 cd small_index
-rm *.pid *.log
+rm -rf *.pid *.log
 cd -
 
 
 cd big_index
-rm *.pid *.log
+rm -rf *.pid *.log
 cd -
 
 
 cd master
-rm *.pid *.log
+rm -rf *.pid *.log
 cd -

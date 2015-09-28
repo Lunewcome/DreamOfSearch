@@ -6,19 +6,21 @@
 #ifndef SERVER_BACKEND_INDEXER_H_
 #define SERVER_BACKEND_INDEXER_H_
 
+#include "blade-bin/server/backend/proto/doc_info.pb.h"
+#include "blade-bin/server/backend/proto/raw_doc.pb.h"
 #include "common/basics.h"
+#include "common/log.h"
 #include "common/shared_ptr.h"
 #include "common/string_util.h"
-#include "server/backend/doc_reader.h"
-#include "server/backend/raw_doc.h"
-#include "server/backend/thrift/gen-cpp/doc_info_types.h"
-#include "thirdparty/cJSON.h"
+#include "server/backend/doc_builder.h"
 
 #include <algorithm>
 
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
+using std::list;
 using std::map;
 using std::string;
 using std::vector;
@@ -32,53 +34,18 @@ class DocListEntry {
   inline DocId GetDocId() const {
     return doc_id_;
   }
-
-  inline void AddField(FieldSeq field_seq_num) {
-    fields_.push_back(field_seq_num);
-  }
-//  inline void AddField(const string& field_name) {
-//    fields_.push_back(field_name);
-//  }
-
-  inline bool HitEntry(DocId doc_id,
-                       FieldSeq field_seq_num) const {
-    return (doc_id == GetDocId()) and HitField(field_seq_num);
-  }
-  inline bool HitField(FieldSeq field_seq_num) const {
-    for (size_t i = 0; i < fields_.size(); ++i) {
-      if (fields_[i] == field_seq_num) {
-        return true;
-      }
-    }
-    return false;
+  inline bool HitEntry(DocId doc_id) const {
+    return doc_id == GetDocId();
   }
   // for debug.
-  const string GetAllFields() const {
-    string flds;
-    for (vector<FieldSeq>::const_iterator itrt =
-             fields_.begin();
-         itrt != fields_.end();
-         ++itrt) {
-      StringAppendF(&flds, "%d,", *itrt);
-    }
-    return flds;
-  }
   const string PrintDocListEntry() const {
     string df;
-    StringPrintf(&df, "(doc_id=%ld,field=", doc_id_);
-    for (vector<FieldSeq>::const_iterator itrt =
-             fields_.begin();
-         itrt != fields_.end();
-         ++itrt) {
-      StringAppendF(&df, "%d,", *itrt);
-    }
-    df[df.size() - 1] = ')';
+    StringPrintf(&df, "(doc_id:%ld)", doc_id_);
     return df;
   }
 
  private:
   DocId doc_id_;
-  vector<FieldSeq> fields_;
 
   DO_NOT_COPY_AND_ASSIGN(DocListEntry);
 };
@@ -87,23 +54,16 @@ class InverseDocList {
  public:
   InverseDocList() {}
   ~InverseDocList() {}
-  inline void AddListEntry(shared_ptr<DocListEntry> entry) {
+  inline void AddListEntry(
+      const shared_ptr<DocListEntry>& entry) {
     doc_list_.push_back(entry);
-    doc_id_pos_map_[entry->GetDocId()] =
-        doc_list_.size() - 1;
-  }
-  inline int GetDocIdPos(DocId id) const {
-    map<DocId, int>::const_iterator itrt =
-       doc_id_pos_map_.find(id);
-    if (itrt == doc_id_pos_map_.end()) {
-      return -1;
-    }
-    return itrt->second;
   }
   inline void Finalize() {
-    sort(doc_list_.begin(),
-         doc_list_.end(),
-         Compare);
+    // Do not need to sort, it's already in order!
+    // sort(doc_list_.begin(),
+    //      doc_list_.end(),
+    //      Compare);
+
     // free the memory.
     vector<shared_ptr<DocListEntry> > new_doc_list;
     new_doc_list.reserve(doc_list_.size());
@@ -111,8 +71,6 @@ class InverseDocList {
       new_doc_list.push_back(doc_list_[i]);
     }
     doc_list_.swap(new_doc_list);
-    map<DocId, int> tmp;
-    doc_id_pos_map_.swap(tmp);
   }
   inline size_t Size() const {
     return doc_list_.size();
@@ -162,29 +120,76 @@ class InverseDocList {
   }
 
   vector<shared_ptr<DocListEntry> > doc_list_;
-  map<DocId, int> doc_id_pos_map_;
 
   DO_NOT_COPY_AND_ASSIGN(InverseDocList);
 };
 
+template<class T>
+class RangeFieldKeyMaker {
+ public:
+  RangeFieldKeyMaker() {}
+  ~RangeFieldKeyMaker() {}
+  void MakeLessThan(const string& field,
+                    T right_bound,
+                    string* key);;
+  void MakeGreaterThan(const string& field,
+                       T left_bound,
+                       string* key);
+  void MakeRange(const string& field,
+                 T left_bound,
+                 T right_bound,
+                 string* key);
+  void MakeOther(const string& field, string* key);
+
+  // Sort range.
+  void Finalize();
+
+  void GetKeyLessThan(const string& field,
+                      T right_bound,
+                      vector<string>* keys);
+  void GetKeyGreaterThan(const string& field,
+                         T left_bound,
+                         vector<string>* keys);
+  void GetKeyRange(const string& field,
+                   T left_bound,
+                   T right_bound,
+                   vector<string>* keys);
+  void GetKeyOther(const string& field,
+                   vector<string>* keys);
+
+ private:
+  struct Range {
+    Range() : left(-1), right(-1u) {}
+    T left;
+    T right;
+  };
+  map<string, vector<Range> > field_range_map_;
+
+  DO_NOT_COPY_AND_ASSIGN(RangeFieldKeyMaker);
+};
+
 class Indexer {
  public:
-  Indexer(const string& prefix);
+  Indexer(const string& data_src)
+      : doc_builder_(new DocBuilder(data_src)),
+        range_key_maker_(new RangeFieldKeyMaker<double>()) {}
   ~Indexer() {}
-  void SetDocSource(const string& reader_name);
-  void AddDocToIndex(const RawDoc& doc);
   void Build();
-  const string& FromDocIdToRawDocId(DocId docid) const {
-    return local_docid_to_raw_id_[docid];
+  void AddDocToIndex(const shared_ptr<RawDoc>& raw_doc);
+  int FromDocIdToRawDocId(DocId docid) const {
+    const DocInfo* entry =
+        (*docid_to_doc_infos_map_[docid]).get();
+    return entry->raw_id();
   }
-  // This is !!!ONLY!!! used for instant search to
-  // index new docs.
-  shared_ptr<DocReader>& GetDocReaderForInstant() {
-    return reader_;
+  shared_ptr<DocBuilder>& GetDocBuilder() {
+    return doc_builder_;
   }
   bool GetInverseDocList(
-      const string& key,
+      const string& field_name,
+      const string& field_val,
       shared_ptr<InverseDocList>* obj) const {
+    string key;
+    MakeKey(field_name, field_val, &key);
     map<string, shared_ptr<InverseDocList> >::const_iterator
         idx_itrt = index_.find(key);
     if (idx_itrt == index_.end()) {
@@ -197,12 +202,30 @@ class Indexer {
 
  private:
   void Finalize();
+  void IndexIntField(DocId doc_id,
+                     const string& field_name,
+                     int field_value);
+  void IndexStrField(DocId doc_id,
+                     const string& field_name,
+                     const string& field_value);
+  void MakeKey(const string& field_name,
+               const string& field_value,
+               string* key) const {
+    StringPrintf(key,
+                 "%s_%s",
+                 field_name.c_str(),
+                 field_value.c_str());
+  }
 
-  shared_ptr<DocReader> reader_;
+  typedef shared_ptr<DocInfo> DocInfoEntry;
+  shared_ptr<DocBuilder> doc_builder_;
   map<string, shared_ptr<InverseDocList> > index_;
-  vector<shared_ptr<DocInfo> > doc_info_;
-  vector<string> local_docid_to_raw_id_;
-  string prefix_;
+  shared_ptr<RangeFieldKeyMaker<double> > range_key_maker_;
+
+  list<DocInfoEntry> doc_infos_;
+  vector<DocInfoEntry*> docid_to_doc_infos_map_;
+
+  vector<string> indexed_field_names_;
 
   DO_NOT_COPY_AND_ASSIGN(Indexer);
 };

@@ -23,7 +23,7 @@ void HttpBackend::Init() {
                       this);
   if (is_instant_searcher_) {
     http_server_->AddCB(FLAGS_query_add_new,
-                        AddNewDataToIndex,
+                        AddNewDoc,
                         this);
   }
   http_server_->AddCB(FLAGS_query_status,
@@ -68,7 +68,7 @@ void HttpBackend::SearchSupply(
   cJSON_free(info);
 }
 
-void HttpBackend::AddNewDataToIndex(
+void HttpBackend::AddNewDoc(
     evhtp_request_t* req,
     void* arg) {
   long long begin = ustime();
@@ -77,7 +77,7 @@ void HttpBackend::AddNewDataToIndex(
   map<string, string> params;
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
   bk->GetParams(req, &params, running_info);
-  cJSON* json_reply = bk->GetSearcher()->AddNewDataToIndex(
+  cJSON* json_reply = bk->GetSearcher()->AddNewDoc(
       params,
       running_info);
   char* str_reply = cJSON_Print(json_reply);

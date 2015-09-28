@@ -7,8 +7,6 @@ cmd="$path/search_instant
   --log_file=$path/search_instant.log
   --v=2
   --supply_data_prefix=$path/../db_datas/supplies
-  --field1=mobile
-  --field2=breed_id
   --dump_index=true
   --is_instant_searcher=true
 "
