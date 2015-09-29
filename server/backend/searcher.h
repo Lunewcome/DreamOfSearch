@@ -4,7 +4,7 @@
 #ifndef SERVER_BACKEND_SEARCHER_H_
 #define SERVER_BACKEND_SEARCHER_H_
 
-#include "blade-bin/server/backend/proto/request_params.pb.h"
+#include "blade-bin/server/proto/request_types.h"
 #include "common/basics.h"
 #include "common/shared_ptr.h"
 #include "server/backend/indexer.h"
@@ -18,6 +18,7 @@ using std::string;
 using std::vector;
 
 struct cJSON;
+class Response;
 
 // keep these two in order.
 enum RequestParamInUrl {
@@ -47,14 +48,14 @@ class Searcher {
   cJSON* SearchSupply(
       const map<string, string>& params,
       cJSON* running_info) const;
+  void NewSearchSupply(RequestParams* request,
+                       Response* response) const;
   cJSON* AddNewDoc(const map<string, string>& params,
                    cJSON* running_info);
   void BuildIndexFromFile();
 
  private:
-  bool BuildRequestParams(const map<string, string>& params,
-                          RequestParams* rp,
-                          cJSON* running_info) const;
+  int BuildRequestParams(RequestParams* request) const;
 
   shared_ptr<Indexer> supply_indexer_;
   shared_ptr<InverseDoclistSearcher> index_searcher_;

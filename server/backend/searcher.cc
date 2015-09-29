@@ -1,5 +1,6 @@
 #include "server/backend/searcher.h"
 
+#include "blade-bin/server/proto/response_types.h"
 #include "common/flags.h"
 #include "common/util.h"
 #include "server/backend/doc_builder.h"
@@ -10,10 +11,12 @@ DEFINE_string(supply_data,
               "");
 
 #define MakeRequestParams(field)  \
-  itrt = params.find(rp->names().field());  \
+  itrt = params.find(request->names.field);  \
   if (itrt != params.end()) {  \
-    rp->set_##field(StringToInt(itrt->second));  \
+    request->__set_##field(StringToInt(itrt->second));  \
     ++count;  \
+  } else {  \
+    request->__isset.field = false; \
   }
 
 Searcher::Searcher()
@@ -22,9 +25,44 @@ Searcher::Searcher()
       new InverseDoclistSearcher(supply_indexer_));
 }
 
+void Searcher::NewSearchSupply(
+    RequestParams* request,
+    Response* response) const {
+  long long start = ustime();
+  if (!BuildRequestParams(request)) {
+    return;
+  }
+  index_searcher_->NewSearchDocId(*request, response);
+  long long end = ustime();
+  response->running_info.__set_search_cost(end - start);
+
+/*
+  cJSON_AddItemToObject(
+      running_info,
+      "search cost(us)",
+      cJSON_CreateNumber(end - start));
+
+  cJSON* reply = cJSON_CreateObject();
+  string ids_str;
+  for (size_t i = 0; i < ids.size(); ++i) {
+    StringAppendF(
+        &ids_str,
+        "%d%c",
+        supply_indexer_->FromDocIdToRawDocId(ids[i]),
+        i == (ids.size() - 1) ? '\0' : ',');
+  }
+  cJSON_AddItemToObject(
+      reply,
+      "ids",
+      cJSON_CreateString(ids_str.c_str()));
+*/
+}
+
 cJSON* Searcher::SearchSupply(
     const map<string, string>& params,
     cJSON* running_info) const {
+  return NULL;
+/*
   RequestParams rp;
   if (!BuildRequestParams(params, &rp, running_info)) {
     cJSON_AddItemToObject(
@@ -58,18 +96,17 @@ cJSON* Searcher::SearchSupply(
       "ids",
       cJSON_CreateString(ids_str.c_str()));
   return reply;
+  */
 }
 
-bool Searcher::BuildRequestParams(
-    const map<string, string>& params,
-    RequestParams* rp,
-    cJSON* running_info) const {
-  map<string, string>::const_iterator itrt;
-
-  rp->set_page_size(20);
-  rp->set_page_no(0);
-
+int Searcher::BuildRequestParams(
+    RequestParams* request) const {
+  const map<string, string>& params =
+      request->url_params.url_kvs;
   int count = 0;
+  request->__set_page_size(20);
+  request->__set_page_no(0);
+  map<string, string>::const_iterator itrt;
   MakeRequestParams(product_id);
   MakeRequestParams(breed_id);
   MakeRequestParams(supply_province_id);
@@ -77,7 +114,7 @@ bool Searcher::BuildRequestParams(
   MakeRequestParams(supply_county_id);
   MakeRequestParams(page_size);
   MakeRequestParams(page_no);
-
+  MakeRequestParams(hit_all_words);
   return count;
 }
 

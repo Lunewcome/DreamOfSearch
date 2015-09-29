@@ -7,7 +7,7 @@
 #include "common/basics.h"
 #include "common/shared_ptr.h"
 #include "common/simple_line_reader.h"
-#include "blade-bin/server/backend/proto/raw_doc.pb.h"
+#include "blade-bin/server/proto/raw_doc_types.h"
 
 #include <string>
 using std::string;

@@ -1,38 +1,51 @@
 /*
  * Http server backend.
  */
-#ifndef SERVER_BACKEND_BACKEND_H_
-#define SERVER_BACKEND_BACKEND_H_
-
+#ifndef SERVER_BACKEND_HTTP_BACKEND_H_
+#define SERVER_BACKEND_HTTP_BACKEND_H_
+#include "blade-bin/server/proto/request_types.h"
 #include "server/http/http_server.h"
+#include "server/backend/search_results.h"
 #include "server/backend/searcher.h"
 
 #include <string>
 #include <vector>
+#include <pthread.h>
 using std::string;
 using std::vector;
 
-struct cJSON;
+typedef unsigned long long ThreadId;
 
 class HttpBackend {
  public:
-  HttpBackend(int v, shared_ptr<HttpServer> server, bool is_instant)
-      : log_v_(v),
+  HttpBackend(int thread_num,
+              shared_ptr<HttpServer> server,
+              bool is_instant)
+      : thread_num_(thread_num),
         searcher_(new Searcher()),
         http_server_(server),
         is_instant_searcher_(is_instant) {
     Init();
   }
-  ~HttpBackend() {}
-
+  ~HttpBackend() {
+    pthread_mutex_destroy(&pool_lock_);
+  }
   // http callbacks.
   static void SearchSupply(evhtp_request_t* req,
+                           void* arg);
+  static void NewSearchSupply(evhtp_request_t* req,
                            void* arg);
   // for instant search only.
   static void AddNewDoc(evhtp_request_t* req,
                         void* arg);
   static void Status(evhtp_request_t* req,
                      void* arg);
+
+  inline void NewGetParams(evhtp_request_t* req,
+                           RequestParams* request) const {
+    http_server_->NewGetParams(req, &request->url_params);
+  }
+
   inline void GetParams(evhtp_request_t* req,
                         map<string, string>* params,
                         cJSON* running_info) const {
@@ -40,7 +53,7 @@ class HttpBackend {
                             params,
                             running_info);
   }
-  inline shared_ptr<Searcher> GetSearcher() {
+  inline shared_ptr<Searcher>& GetSearcher() {
     return searcher_;
   }
   inline shared_ptr<HttpServer> GetHttpServer() {
@@ -49,13 +62,23 @@ class HttpBackend {
 
  private:
   void Init();
+  struct SearchContext {
+    shared_ptr<SearchResults> result_instance;
+    shared_ptr<RequestParams> request_instance;
+  };
+  void SelectSearchContext(
+      shared_ptr<SearchResults>* result_instance,
+      shared_ptr<RequestParams>* request_instance);
 
-  const int log_v_;
+  int thread_num_;
   shared_ptr<Searcher> searcher_;
   shared_ptr<HttpServer> http_server_;
   bool is_instant_searcher_;
+  vector<ThreadId> thread_ids_;
+  vector<SearchContext> search_context_pool_;
+  pthread_mutex_t pool_lock_;
 
   DO_NOT_COPY_AND_ASSIGN(HttpBackend);
 };
 
-#endif  // SERVER_SEARCHER_BACKEND_H_
+#endif  // SERVER_BACKEND_HTTP_BACKEND_H_

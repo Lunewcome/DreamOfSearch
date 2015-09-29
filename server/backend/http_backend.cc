@@ -1,11 +1,12 @@
 #include "server/backend/http_backend.h"
 
-#include "thirdparty/cJSON.h"
 #include "common/flags.h"
 #include "common/log.h"
 #include "common/string_util.h"
+#include "common/thrift_util.h"
 #include "common/util.h"
 #include "server/http/http_server.h"
+#include "thirdparty/cJSON.h"
 
 #include <event2/buffer.h>
 #include <event2/event.h>
@@ -32,6 +33,34 @@ void HttpBackend::Init() {
   if (!is_instant_searcher_) {
     searcher_->BuildIndexFromFile();
   }
+  thread_ids_.reserve(thread_num_);
+  search_context_pool_.reserve(thread_num_);
+  for (int i = 0; i < thread_num_; ++i) {
+    SearchContext sc;
+    sc.result_instance.reset(new SearchResults());
+    sc.request_instance.reset(new RequestParams());
+    search_context_pool_.push_back(sc);
+  }
+  pthread_mutex_init(&pool_lock_, NULL);
+}
+
+void HttpBackend::NewSearchSupply(
+    evhtp_request_t* req,
+    void* arg) {
+  long long begin = ustime();
+  HttpBackend* bk = static_cast<HttpBackend*>(arg);
+  // use them carefully : unset/clear before modifying it.
+  shared_ptr<SearchResults> results;
+  shared_ptr<RequestParams> request;
+  bk->SelectSearchContext(&results, &request);
+  Response& response = results->response;
+  bk->NewGetParams(req, request.get());
+  bk->GetSearcher()->NewSearchSupply(request.get(),
+                                     &response);
+//  bk->GetHttpServer()->SendReply(req, str_reply);
+  long long finish = ustime();
+  response.running_info.__set_total_cost(finish - begin);
+  Log::WriteToBuffer(WARN, FromThriftToString(&response));
 }
 
 void HttpBackend::SearchSupply(
@@ -102,4 +131,28 @@ void HttpBackend::Status(evhtp_request_t* req,
                       void* arg) {
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
   bk->GetHttpServer()->SendReply(req, "I'm ok.");
+}
+
+void HttpBackend::SelectSearchContext(
+    shared_ptr<SearchResults>* result_instance,
+    shared_ptr<RequestParams>* request_instance) {
+  size_t selected;
+  ThreadId thread_id = (ThreadId)(pthread_self());
+  for (selected = 0;
+       selected < thread_ids_.size();
+       ++selected){
+    if (thread_id == thread_ids_[selected]) {
+      break;
+    }
+  }
+  if (selected >= thread_ids_.size()) {
+    pthread_mutex_lock(&pool_lock_);
+    thread_ids_.push_back(thread_id);
+    selected = thread_ids_.size() - 1;
+    pthread_mutex_unlock(&pool_lock_);
+  }
+  *result_instance =
+      search_context_pool_[selected].result_instance;
+  *request_instance =
+      search_context_pool_[selected].request_instance;
 }

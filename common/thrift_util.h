@@ -28,6 +28,17 @@ inline bool FromStringToThriftFast(const std::string &buffer, T *object) {
 }
 
 template <typename T>
+const std::string FromThriftToString(const T *object) {
+  boost::shared_ptr<TMemoryBuffer> membuffer(new TMemoryBuffer());
+  boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(membuffer));
+  object->write(protocol.get());
+  uint8* buffer = NULL;
+  uint32 buffer_size = 0;
+  membuffer->getBuffer(&buffer, &buffer_size);
+  return std::string(reinterpret_cast<const char*>(buffer), buffer_size);
+}
+
+template <typename T>
 const std::string FromThriftToDebugString(const T *object) {
   boost::shared_ptr<TMemoryBuffer> membuffer(new TMemoryBuffer());
   boost::shared_ptr<TProtocol> protocol(new TDebugProtocol(membuffer));
@@ -71,5 +82,4 @@ const std::string FromThriftToUtf8DebugString(const T *object) {
       i++;
     }
   }
-  return out;
 }

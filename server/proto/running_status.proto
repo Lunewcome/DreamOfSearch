@@ -1,0 +1,4 @@
+message RunningStatus {
+  required int32 status = 1;
+  repeated string running_info = 2;
+}
