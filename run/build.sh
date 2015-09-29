@@ -1,3 +1,7 @@
+cd ../server/proto
+./build.sh
+cd -
+
 cd ../server
 blade build -pdebug
 cd -
