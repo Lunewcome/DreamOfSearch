@@ -8,24 +8,27 @@
 #include "common/basics.h"
 #include "common/shared_ptr.h"
 #include "server/backend/indexer.h"
-#include "blade-bin/server/backend/proto/doc_info.pb.h"
-#include "blade-bin/server/backend/proto/raw_doc.pb.h"
+#include "blade-bin/server/proto/doc_info_types.h"
+#include "blade-bin/server/proto/raw_doc_types.h"
 
 #include <queue>
 using std::priority_queue;
 
 struct cJSON;
 class RequestParams;
+class Response;
 
 class InverseDoclistSearcher {
  public:
   InverseDoclistSearcher(const shared_ptr<Indexer>& idx)
       : index_(idx) {}
   ~InverseDoclistSearcher() {}
+  void NewSearchDocId(const RequestParams& request,
+                      Response* response) const;
   void SearchDocId(const RequestParams& request,
                    vector<DocId>* ids,
                    cJSON* running_info,
-                   bool match_all_key = true);
+                   bool match_all_key = true) {}
 
  private:
   struct QueueItem {

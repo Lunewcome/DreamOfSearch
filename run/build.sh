@@ -1,5 +1,9 @@
+cd ../server/proto
+./build.sh
+cd -
+
 cd ../server
-blade build -pdebug
+blade build
 cd -
 
 mv ../blade-bin/server/search_root master

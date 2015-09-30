@@ -8,8 +8,8 @@ DEFINE_bool(dump_index, false, "");
 
 #define IndexField(field)  \
   IndexIntField(doc_id,  \
-                raw_doc->names().field(),  \
-                raw_doc->field());
+                raw_doc->names.field,  \
+                raw_doc->field);
 
 void Indexer::Build() {
   int count = 0;
@@ -40,22 +40,22 @@ void Indexer::Finalize() {
 void Indexer::AddDocToIndex(
     const shared_ptr<RawDoc>& raw_doc) {
   shared_ptr<DocInfo> doc_info(new DocInfo());
-  doc_info->set_raw_id(raw_doc->raw_id());
-  doc_info->set_supply_price_min(raw_doc->min_price());
-  doc_info->set_supply_price_max(raw_doc->max_price());
-  doc_info->set_spec(raw_doc->spec());
-  doc_info->set_pics(raw_doc->pics());
-  doc_info->set_customer_id(raw_doc->customer_id());
-  doc_info->set_updated_time(raw_doc->updated_time());
-  doc_info->set_created_time(raw_doc->created_time());
-  doc_info->set_supply_longitude(
-      raw_doc->supply_longitude());
-  doc_info->set_supply_latitude (
-      raw_doc->supply_latitude());
+  doc_info->__set_raw_id(raw_doc->raw_id);
+  doc_info->__set_supply_price_min(raw_doc->min_price);
+  doc_info->__set_supply_price_max(raw_doc->max_price);
+  doc_info->__set_spec(raw_doc->spec);
+  doc_info->__set_pics(raw_doc->pics);
+  doc_info->__set_customer_id(raw_doc->customer_id);
+  doc_info->__set_updated_time(raw_doc->updated_time);
+  doc_info->__set_created_time(raw_doc->created_time);
+  doc_info->__set_supply_longitude(
+      raw_doc->supply_longitude);
+  doc_info->__set_supply_latitude (
+      raw_doc->supply_latitude);
   doc_infos_.push_back(doc_info);
   docid_to_doc_infos_map_.push_back(&doc_infos_.back());
 
-  DocId doc_id = raw_doc->doc_id();
+  DocId doc_id = raw_doc->doc_id;
 
   IndexField(product_id);
   IndexField(breed_id);

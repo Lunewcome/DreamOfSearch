@@ -10,10 +10,13 @@
 #include <evhtp/evhtp.h>
 #include <map>
 #include <string>
+#include <vector>
 using std::map;
 using std::string;
+using std::vector;
 
 struct cJSON;
+class UrlParams;
 
 typedef void (*HttpCB)(evhtp_request_t*, void*);
 
@@ -32,6 +35,8 @@ class HttpServer {
   ~HttpServer();
   // Do anything thread-unsafe before Serve()!
   void Serve();
+  void NewGetParams(evhtp_request_t* req,
+                    UrlParams* url_params) const;
   void GetParams(evhtp_request_t* req,
                  map<string, string>* kv,
                  cJSON* running_info) const;

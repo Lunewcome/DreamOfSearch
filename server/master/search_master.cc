@@ -63,7 +63,8 @@ void SearchMaster::Search(evhtp_request_t* req,
   long long begin = ustime();
 
   SearchMaster* sm = reinterpret_cast<SearchMaster*>(arg);
-  int big, small;
+  int big = 0;
+  int small = 0;
   sm->SelectBackend(&big, &small);
   const shared_ptr<HttpClient>& big_index_client =
       sm->GetBigIndexClient(big);

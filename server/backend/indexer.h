@@ -6,8 +6,8 @@
 #ifndef SERVER_BACKEND_INDEXER_H_
 #define SERVER_BACKEND_INDEXER_H_
 
-#include "blade-bin/server/backend/proto/doc_info.pb.h"
-#include "blade-bin/server/backend/proto/raw_doc.pb.h"
+#include "blade-bin/server/proto/doc_info_types.h"
+#include "blade-bin/server/proto/raw_doc_types.h"
 #include "common/basics.h"
 #include "common/log.h"
 #include "common/shared_ptr.h"
@@ -179,7 +179,7 @@ class Indexer {
   int FromDocIdToRawDocId(DocId docid) const {
     const DocInfo* entry =
         (*docid_to_doc_infos_map_[docid]).get();
-    return entry->raw_id();
+    return entry->raw_id;
   }
   shared_ptr<DocBuilder>& GetDocBuilder() {
     return doc_builder_;
