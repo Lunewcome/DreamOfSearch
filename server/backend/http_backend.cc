@@ -20,7 +20,8 @@ DEFINE_string(query_status, "/sts", "");
 
 void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_supply,
-                      SearchSupply,
+//                      SearchSupply,
+                      NewSearchSupply,
                       this);
   if (is_instant_searcher_) {
     http_server_->AddCB(FLAGS_query_add_new,
@@ -41,7 +42,10 @@ void HttpBackend::Init() {
     sc.request_instance.reset(new RequestParams());
     search_context_pool_.push_back(sc);
   }
-  pthread_mutex_init(&pool_lock_, NULL);
+  if (pthread_mutex_init(&pool_lock_, NULL) != 0) {
+    Log::WriteToDisk(ERROR, "Fail to create lock!");
+    abort();
+  }
 }
 
 void HttpBackend::NewSearchSupply(
@@ -57,10 +61,11 @@ void HttpBackend::NewSearchSupply(
   bk->NewGetParams(req, request.get());
   bk->GetSearcher()->NewSearchSupply(request.get(),
                                      &response);
-//  bk->GetHttpServer()->SendReply(req, str_reply);
   long long finish = ustime();
   response.running_info.__set_total_cost(finish - begin);
-  Log::WriteToBuffer(WARN, FromThriftToString(&response));
+  const string& reply = FromThriftToString(&response);
+  bk->GetHttpServer()->SendReply(req, reply);
+  Log::WriteToBuffer(WARN, reply);
 }
 
 void HttpBackend::SearchSupply(
@@ -146,10 +151,16 @@ void HttpBackend::SelectSearchContext(
     }
   }
   if (selected >= thread_ids_.size()) {
-    pthread_mutex_lock(&pool_lock_);
+    if (pthread_mutex_lock(&pool_lock_) != 0) {
+      Log::WriteToDisk(ERROR, "Fail to lock.");
+      abort();
+    }
     thread_ids_.push_back(thread_id);
     selected = thread_ids_.size() - 1;
-    pthread_mutex_unlock(&pool_lock_);
+    if (pthread_mutex_unlock(&pool_lock_) != 0) {
+      Log::WriteToDisk(ERROR, "Fail to unlock.");
+      abort();
+    }
   }
   *result_instance =
       search_context_pool_[selected].result_instance;
