@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
                      FLAGS_port,
                      FLAGS_server_thread_num));
   shared_ptr<HttpBackend> backend(
-      new HttpBackend(FLAGS_v,
+      new HttpBackend(FLAGS_server_thread_num,
                       hs,
                       FLAGS_is_instant_searcher));
   hs->Serve();

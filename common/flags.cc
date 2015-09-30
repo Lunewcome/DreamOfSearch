@@ -665,7 +665,7 @@ FlagRegistry* FlagRegistry::global_registry_ = NULL;
 Mutex FlagRegistry::global_registry_lock_(Mutex::LINKER_INITIALIZED);
 
 FlagRegistry* FlagRegistry::GlobalRegistry() {
-//  MutexLock acquire_lock(&global_registry_lock_);
+  MutexLock acquire_lock(&global_registry_lock_);
   if (!global_registry_) {
     global_registry_ = new FlagRegistry;
   }

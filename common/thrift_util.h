@@ -82,4 +82,5 @@ const std::string FromThriftToUtf8DebugString(const T *object) {
       i++;
     }
   }
+  return out;
 }

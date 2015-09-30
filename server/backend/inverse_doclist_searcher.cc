@@ -32,6 +32,7 @@ void InverseDoclistSearcher::NewSearchDocId(
     const RequestParams& request,
     Response* response) const {
   vector<int>* ids = &response->doc_ids;
+  response->__isset.doc_ids = true;
   ids->clear();
   bool hit_all_words = request.hit_all_words;
 

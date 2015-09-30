@@ -34,6 +34,9 @@ void HttpBackend::Init() {
   if (!is_instant_searcher_) {
     searcher_->BuildIndexFromFile();
   }
+  if (thread_num_ <= 0) {
+    thread_num_ = 1;
+  }
   thread_ids_.reserve(thread_num_);
   search_context_pool_.reserve(thread_num_);
   for (int i = 0; i < thread_num_; ++i) {
@@ -53,17 +56,18 @@ void HttpBackend::NewSearchSupply(
     void* arg) {
   long long begin = ustime();
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
-  // use them carefully : unset/clear before modifying it.
-  shared_ptr<SearchResults> results;
-  shared_ptr<RequestParams> request;
-  bk->SelectSearchContext(&results, &request);
+  shared_ptr<SearchResults> results(new SearchResults());
+  shared_ptr<RequestParams> request(new RequestParams());
+// I've found that a result pool does't improve
+// the program. Do not use it now.
+//  bk->SelectSearchContext(&results, &request);
   Response& response = results->response;
   bk->NewGetParams(req, request.get());
   bk->GetSearcher()->NewSearchSupply(request.get(),
                                      &response);
   long long finish = ustime();
   response.running_info.__set_total_cost(finish - begin);
-  const string& reply = FromThriftToString(&response);
+  const string& reply = FromThriftToUtf8DebugString(&response);
   bk->GetHttpServer()->SendReply(req, reply);
   Log::WriteToBuffer(WARN, reply);
 }
@@ -141,24 +145,24 @@ void HttpBackend::Status(evhtp_request_t* req,
 void HttpBackend::SelectSearchContext(
     shared_ptr<SearchResults>* result_instance,
     shared_ptr<RequestParams>* request_instance) {
+  bool hit = false;
   size_t selected;
   ThreadId thread_id = (ThreadId)(pthread_self());
   for (selected = 0;
        selected < thread_ids_.size();
        ++selected){
     if (thread_id == thread_ids_[selected]) {
+      hit = true;
       break;
     }
   }
-  if (selected >= thread_ids_.size()) {
+  if (!hit) {
     if (pthread_mutex_lock(&pool_lock_) != 0) {
-      Log::WriteToDisk(ERROR, "Fail to lock.");
       abort();
     }
     thread_ids_.push_back(thread_id);
     selected = thread_ids_.size() - 1;
     if (pthread_mutex_unlock(&pool_lock_) != 0) {
-      Log::WriteToDisk(ERROR, "Fail to unlock.");
       abort();
     }
   }
