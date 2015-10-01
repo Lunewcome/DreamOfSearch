@@ -69,8 +69,8 @@ void HttpServer::GetPrettyQuery(
   StringPrintf(pretty, "%s", unescaped_out);
 }
 
-void HttpServer::NewGetParams(evhtp_request_t* req,
-                              UrlParams* url_params) const {
+void HttpServer::GetParams(evhtp_request_t* req,
+                           UrlParams* url_params) const {
   map<string, string>& kv = url_params->url_kvs;
   string& uri = url_params->uri;
   string& query = url_params->query;
@@ -99,39 +99,6 @@ void HttpServer::NewGetParams(evhtp_request_t* req,
     SplitString(*q_itrt, '=', &kv_pairs);
     GetPrettyQuery((unsigned char*)kv_pairs[1].c_str(),
                    &kv[kv_pairs[0]]);
-  }
-}
-
-void HttpServer::GetParams(
-    evhtp_request_t* req,
-    map<string, string>* kv,
-    cJSON* running_info) const {
-  cJSON_AddItemToObject(
-      running_info,
-      "uri",
-      cJSON_CreateString(req->uri->path->full));
-  string query;
-	if (req->uri->query_raw) {
-    GetPrettyQuery(req->uri->query_raw, &query);
-	}
-  cJSON_AddItemToObject(
-      running_info,
-      "query",
-      cJSON_CreateString(query.c_str()));
-
-  vector<string> query_splits;
-  SplitString((const char*)req->uri->query_raw,
-              '&',
-              &query_splits);
-  vector<string> kv_pairs;
-  for (vector<string>::iterator q_itrt =
-           query_splits.begin();
-       q_itrt != query_splits.end();
-       ++q_itrt) {
-    kv_pairs.clear();
-    SplitString(*q_itrt, '=', &kv_pairs);
-    GetPrettyQuery((unsigned char*)kv_pairs[1].c_str(),
-                   &(*kv)[kv_pairs[0]]);
   }
 }
 

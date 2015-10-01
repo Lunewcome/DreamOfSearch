@@ -30,28 +30,16 @@ class HttpBackend {
   ~HttpBackend() {
     pthread_mutex_destroy(&pool_lock_);
   }
-  // http callbacks.
   static void SearchSupply(evhtp_request_t* req,
-                           void* arg);
-  static void NewSearchSupply(evhtp_request_t* req,
                            void* arg);
   // for instant search only.
   static void AddNewDoc(evhtp_request_t* req,
                         void* arg);
   static void Status(evhtp_request_t* req,
                      void* arg);
-
-  inline void NewGetParams(evhtp_request_t* req,
-                           RequestParams* request) const {
-    http_server_->NewGetParams(req, &request->url_params);
-  }
-
   inline void GetParams(evhtp_request_t* req,
-                        map<string, string>* params,
-                        cJSON* running_info) const {
-    http_server_->GetParams(req,
-                            params,
-                            running_info);
+                        RequestParams* request) const {
+    http_server_->GetParams(req, &request->url_params);
   }
   inline shared_ptr<Searcher>& GetSearcher() {
     return searcher_;

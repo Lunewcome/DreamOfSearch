@@ -23,13 +23,8 @@ class InverseDoclistSearcher {
   InverseDoclistSearcher(const shared_ptr<Indexer>& idx)
       : index_(idx) {}
   ~InverseDoclistSearcher() {}
-  void NewSearchDocId(const RequestParams& request,
-                      Response* response) const;
   void SearchDocId(const RequestParams& request,
-                   vector<DocId>* ids,
-                   cJSON* running_info,
-                   bool match_all_key = true) {}
-
+                   Response* response) const;
  private:
   struct QueueItem {
     QueueItem(DocId id, size_t next_id_idx, int idx_list)

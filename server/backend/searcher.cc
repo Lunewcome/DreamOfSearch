@@ -2,6 +2,7 @@
 
 #include "blade-bin/server/proto/response_types.h"
 #include "common/flags.h"
+#include "common/thrift_util.h"
 #include "common/util.h"
 #include "server/backend/doc_builder.h"
 #include "thirdparty/cJSON.h"
@@ -25,78 +26,16 @@ Searcher::Searcher()
       new InverseDoclistSearcher(supply_indexer_));
 }
 
-void Searcher::NewSearchSupply(
+void Searcher::SearchSupply(
     RequestParams* request,
     Response* response) const {
   long long start = ustime();
   if (!BuildRequestParams(request)) {
     return;
   }
-  index_searcher_->NewSearchDocId(*request, response);
+  index_searcher_->SearchDocId(*request, response);
   long long end = ustime();
   response->running_info.__set_search_cost(end - start);
-
-/*
-  cJSON_AddItemToObject(
-      running_info,
-      "search cost(us)",
-      cJSON_CreateNumber(end - start));
-
-  cJSON* reply = cJSON_CreateObject();
-  string ids_str;
-  for (size_t i = 0; i < ids.size(); ++i) {
-    StringAppendF(
-        &ids_str,
-        "%d%c",
-        supply_indexer_->FromDocIdToRawDocId(ids[i]),
-        i == (ids.size() - 1) ? '\0' : ',');
-  }
-  cJSON_AddItemToObject(
-      reply,
-      "ids",
-      cJSON_CreateString(ids_str.c_str()));
-*/
-}
-
-cJSON* Searcher::SearchSupply(
-    const map<string, string>& params,
-    cJSON* running_info) const {
-  return NULL;
-/*
-  RequestParams rp;
-  if (!BuildRequestParams(params, &rp, running_info)) {
-    cJSON_AddItemToObject(
-        running_info,
-        "param error",
-        cJSON_CreateString("url is wrong. Please check!"));
-    return NULL;
-  }
-  vector<DocId> ids;
-
-  long long start = ustime();
-  index_searcher_->SearchDocId(rp, &ids, running_info);
-  long long end = ustime();
-
-  cJSON_AddItemToObject(
-      running_info,
-      "search cost(us)",
-      cJSON_CreateNumber(end - start));
-
-  cJSON* reply = cJSON_CreateObject();
-  string ids_str;
-  for (size_t i = 0; i < ids.size(); ++i) {
-    StringAppendF(
-        &ids_str,
-        "%d%c",
-        supply_indexer_->FromDocIdToRawDocId(ids[i]),
-        i == (ids.size() - 1) ? '\0' : ',');
-  }
-  cJSON_AddItemToObject(
-      reply,
-      "ids",
-      cJSON_CreateString(ids_str.c_str()));
-  return reply;
-  */
 }
 
 int Searcher::BuildRequestParams(
@@ -118,28 +57,25 @@ int Searcher::BuildRequestParams(
   return count;
 }
 
-cJSON* Searcher::AddNewDoc(
-    const map<string, string>& params,
-    cJSON* running_info) {
-  shared_ptr<DocBuilder>& builder =
-      supply_indexer_->GetDocBuilder();
-  string add_status;
-  string line_doc = "";
-  int ret = 0;
-  supply_indexer_->AddDocToIndex(
-      builder->GetRawDocFromString(line_doc));
-  cJSON* reply = cJSON_CreateObject();
-  string flag = "add doc status";
-  if (ret) {
-    add_status = "Ok";
+void Searcher::AddNewDoc(
+    RequestParams* request,
+    Response* response) const {
+  long long start = ustime();
+	const map<string, string>& params =
+	    request->url_params.url_kvs;
+	map<string, string>::const_iterator itrt = 
+	    params.find(request->names.add_doc);
+  shared_ptr<RawDoc> raw_doc(new RawDoc());
+  if (itrt != params.end()) {
+	  if (FromStringToThriftFast(itrt->second, raw_doc.get())) {
+      supply_indexer_->AddDocToIndex(raw_doc);
+    } else {
+		}
   } else {
-    add_status = "Fail";
-  }
-  cJSON_AddItemToObject(
-      reply,
-      flag.c_str(),
-      cJSON_CreateString(add_status.c_str()));
-  return reply;
+	  ///...
+	}
+  long long end = ustime();
+  response->running_info.__set_search_cost(end - start);
 }
 
 void Searcher::BuildIndexFromFile() {

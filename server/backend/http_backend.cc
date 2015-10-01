@@ -20,8 +20,7 @@ DEFINE_string(query_status, "/sts", "");
 
 void HttpBackend::Init() {
   http_server_->AddCB(FLAGS_query_supply,
-//                      SearchSupply,
-                      NewSearchSupply,
+                      SearchSupply,
                       this);
   if (is_instant_searcher_) {
     http_server_->AddCB(FLAGS_query_add_new,
@@ -51,20 +50,17 @@ void HttpBackend::Init() {
   }
 }
 
-void HttpBackend::NewSearchSupply(
+void HttpBackend::SearchSupply(
     evhtp_request_t* req,
     void* arg) {
   long long begin = ustime();
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
   shared_ptr<SearchResults> results(new SearchResults());
   shared_ptr<RequestParams> request(new RequestParams());
-// I've found that a result pool does't improve
-// the program. Do not use it now.
-//  bk->SelectSearchContext(&results, &request);
   Response& response = results->response;
-  bk->NewGetParams(req, request.get());
-  bk->GetSearcher()->NewSearchSupply(request.get(),
-                                     &response);
+  bk->GetParams(req, request.get());
+  bk->GetSearcher()->SearchSupply(request.get(),
+                                  &response);
   long long finish = ustime();
   response.running_info.__set_total_cost(finish - begin);
   const string& reply = FromThriftToUtf8DebugString(&response);
@@ -72,68 +68,22 @@ void HttpBackend::NewSearchSupply(
   Log::WriteToBuffer(WARN, reply);
 }
 
-void HttpBackend::SearchSupply(
-    evhtp_request_t* req,
-    void* arg) {
-  long long begin = ustime();
-
-  cJSON* running_info = cJSON_CreateObject();
-  map<string, string> params;
-  HttpBackend* bk = static_cast<HttpBackend*>(arg);
-  bk->GetParams(req, &params, running_info);
-  cJSON* json_reply = bk->GetSearcher()->SearchSupply(
-      params,
-      running_info);
-  char* str_reply = cJSON_Print(json_reply);
-
-  bk->GetHttpServer()->SendReply(req, str_reply);
-  cJSON_free(str_reply);
-  cJSON_AddItemToObject(
-      running_info,
-      "reply_to_client",
-      json_reply);
-
-  long long finish = ustime();
-
-  cJSON_AddItemToObject(
-      running_info,
-      "total cost(us)",
-      cJSON_CreateNumber(finish - begin));
-
-  char* info = cJSON_Print(running_info);
-  cJSON_Delete(running_info);
-  Log::WriteToBuffer(WARN, info);
-  cJSON_free(info);
-}
-
 void HttpBackend::AddNewDoc(
     evhtp_request_t* req,
     void* arg) {
   long long begin = ustime();
-
-  cJSON* running_info = cJSON_CreateObject();
-  map<string, string> params;
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
-  bk->GetParams(req, &params, running_info);
-  cJSON* json_reply = bk->GetSearcher()->AddNewDoc(
-      params,
-      running_info);
-  char* str_reply = cJSON_Print(json_reply);
-  bk->GetHttpServer()->SendReply(req, str_reply);
-  cJSON_free(str_reply);
-  cJSON_AddItemToObject(
-      running_info,
-      "reply_to_client",
-      json_reply);
+  shared_ptr<SearchResults> results(new SearchResults());
+  shared_ptr<RequestParams> request(new RequestParams());
+  Response& response = results->response;
+  bk->GetParams(req, request.get());
+  bk->GetSearcher()->AddNewDoc(request.get(),
+                               &response);
   long long finish = ustime();
-  cJSON_AddItemToObject(
-      running_info,
-      "cost",
-      cJSON_CreateNumber(finish - begin));
-  char* info = cJSON_Print(running_info);
-  cJSON_Delete(running_info);
-  Log::WriteToBuffer(WARN, info);
-  cJSON_free(info);
+  response.running_info.__set_total_cost(finish - begin);
+  const string& reply = FromThriftToUtf8DebugString(&response);
+  bk->GetHttpServer()->SendReply(req, reply);
+  Log::WriteToBuffer(WARN, reply);
 }
 
 void HttpBackend::Status(evhtp_request_t* req,

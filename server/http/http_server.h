@@ -35,11 +35,8 @@ class HttpServer {
   ~HttpServer();
   // Do anything thread-unsafe before Serve()!
   void Serve();
-  void NewGetParams(evhtp_request_t* req,
-                    UrlParams* url_params) const;
   void GetParams(evhtp_request_t* req,
-                 map<string, string>* kv,
-                 cJSON* running_info) const;
+                 UrlParams* url_params) const;
   void AddCB(const string& path, HttpCB cb, void* arg);
   void SendReply(evhtp_request_t* req,
                  const char* reply) const;

@@ -7,4 +7,5 @@ struct IndexedFieldNames {
   6: required string page_size = "page_size",
   7: required string page_no = "page_no",
   8: required string hit_all_words = "hit_all",
+	9: required string add_doc = "add_doc",
 }

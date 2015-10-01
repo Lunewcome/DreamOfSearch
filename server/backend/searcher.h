@@ -48,10 +48,10 @@ class Searcher {
   cJSON* SearchSupply(
       const map<string, string>& params,
       cJSON* running_info) const;
-  void NewSearchSupply(RequestParams* request,
-                       Response* response) const;
-  cJSON* AddNewDoc(const map<string, string>& params,
-                   cJSON* running_info);
+  void SearchSupply(RequestParams* request,
+                    Response* response) const;
+  void AddNewDoc(RequestParams* request,
+                 Response* response) const;
   void BuildIndexFromFile();
 
  private:

@@ -2,7 +2,6 @@
 
 #include "common/flags.h"
 #include "common/log.h"
-#include "server/backend/field.h"
 
 DEFINE_bool(dump_index, false, "");
 

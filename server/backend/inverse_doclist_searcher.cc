@@ -28,7 +28,7 @@ bool operator<(
   return qi1->doc_id > qi2->doc_id;
 }
 
-void InverseDoclistSearcher::NewSearchDocId(
+void InverseDoclistSearcher::SearchDocId(
     const RequestParams& request,
     Response* response) const {
   vector<int>* ids = &response->doc_ids;
