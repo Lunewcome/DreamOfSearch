@@ -4,7 +4,8 @@
 #ifndef SERVER_BACKEND_HTTP_BACKEND_H_
 #define SERVER_BACKEND_HTTP_BACKEND_H_
 #include "blade-bin/server/proto/request_types.h"
-#include "server/http/http_server.h"
+#include "common/basics.h"
+#include "server/network/http_server.h"
 #include "server/backend/search_results.h"
 #include "server/backend/searcher.h"
 

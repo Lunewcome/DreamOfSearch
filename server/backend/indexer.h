@@ -6,6 +6,7 @@
 #ifndef SERVER_BACKEND_INDEXER_H_
 #define SERVER_BACKEND_INDEXER_H_
 
+#include "blade-bin/server/proto/doc_id_types.h"
 #include "blade-bin/server/proto/doc_info_types.h"
 #include "blade-bin/server/proto/raw_doc_types.h"
 #include "common/basics.h"

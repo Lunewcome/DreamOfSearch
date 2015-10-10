@@ -5,7 +5,7 @@
 #include "common/string_util.h"
 #include "common/thrift_util.h"
 #include "common/util.h"
-#include "server/http/http_server.h"
+#include "server/network/http_server.h"
 #include "thirdparty/cJSON.h"
 
 #include <event2/buffer.h>

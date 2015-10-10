@@ -5,11 +5,12 @@
 #ifndef SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_
 #define SERVER_BACKEND_INVERSE_DOCLIST_SEARCHER_H_
 
+#include "blade-bin/server/proto/doc_id_types.h"
+#include "blade-bin/server/proto/doc_info_types.h"
+#include "blade-bin/server/proto/raw_doc_types.h"
 #include "common/basics.h"
 #include "common/shared_ptr.h"
 #include "server/backend/indexer.h"
-#include "blade-bin/server/proto/doc_info_types.h"
-#include "blade-bin/server/proto/raw_doc_types.h"
 
 #include <queue>
 using std::priority_queue;

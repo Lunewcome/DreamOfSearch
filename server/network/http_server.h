@@ -1,8 +1,8 @@
 /**
  * A httpserver wrapper for libevhtp.
  */
-#ifndef SERVER_SEARCHER_HTTP_SERVER_H_
-#define SERVER_SEARCHER_HTTP_SERVER_H_
+#ifndef SERVER_NETWORK_HTTP_SERVER_H_
+#define SERVER_NETWORK_HTTP_SERVER_H_
 
 #include "common/basics.h"
 #include "common/shared_ptr.h"
@@ -59,4 +59,4 @@ class HttpServer {
   DO_NOT_COPY_AND_ASSIGN(HttpServer);
 };
 
-#endif  // SERVER_SEARCHER_HTTP_SERVER_H_
+#endif  // SERVER_NETWORK_HTTP_SERVER_H_

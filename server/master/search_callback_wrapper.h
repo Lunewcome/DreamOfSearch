@@ -2,7 +2,7 @@
  */
 #ifndef SERVER_MASTER_GENERAL_CALLBACK_WRAPPER_H_
 #define SERVER_MASTER_GENERAL_CALLBACK_WRAPPER_H_
-#include "server/http/callback_wrapper_base.h"
+#include "server/network/callback_wrapper_base.h"
 
 #include "common/basics.h"
 #include "common/log.h"

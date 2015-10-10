@@ -3,7 +3,7 @@
 #include "common/util.h"
 
 #include "server/backend/http_backend.h"
-#include "server/http/http_server.h"
+#include "server/network/http_server.h"
 
 #include <unistd.h>
 

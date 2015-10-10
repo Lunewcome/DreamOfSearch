@@ -5,7 +5,7 @@ cc_binary (
   ],
   deps = [
     '//common:base',
-    '//server/http:http_client',
+    '//server/network:http_client',
     '#event',
     '#event_openssl',
     '#event_pthreads',

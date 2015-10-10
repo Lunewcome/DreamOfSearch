@@ -10,7 +10,8 @@ cc_library (
   ],
   deps = [
     '//common:base',
-    '//server/http:http_server',
+    '//server/network:http_server',
+    '//server/proto:doc_id',
     '//server/proto:doc_info',
     '//server/proto:indexed_field_names',
     '//server/proto:raw_doc',

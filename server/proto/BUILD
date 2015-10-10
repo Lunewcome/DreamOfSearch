@@ -1,4 +1,9 @@
 thrift_library (
+  name = 'doc_id',
+	srcs = 'doc_id.thrift',
+)
+
+thrift_library (
   name = 'indexed_field_names',
   srcs = 'indexed_field_names.thrift',
 )

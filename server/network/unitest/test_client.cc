@@ -1,7 +1,7 @@
 #include "common/log.h"
 #include "common/util.h"
-#include "server/http/callback_wrapper_base.h"
-#include "server/http/http_client.h"
+#include "server/network/callback_wrapper_base.h"
+#include "server/network/http_client.h"
 
 #include <unistd.h>
 #include <iostream>

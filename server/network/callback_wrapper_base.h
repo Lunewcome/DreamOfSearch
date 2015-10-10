@@ -4,7 +4,7 @@
 #ifndef SERVER_HTTP_CALLBACK_WRAPPER_H_
 #define SERVER_HTTP_CALLBACK_WRAPPER_H_
 #include "common/basics.h"
-#include "server/http/http_client.h"
+#include "server/network/http_client.h"
 
 class CallBackWrapperBase {
  public:

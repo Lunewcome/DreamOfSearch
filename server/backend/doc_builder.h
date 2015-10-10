@@ -8,11 +8,11 @@
 #include "common/shared_ptr.h"
 #include "common/simple_line_reader.h"
 #include "blade-bin/server/proto/raw_doc_types.h"
+#include "blade-bin/server/proto/doc_id_types.h"
 
 #include <string>
 using std::string;
 
-typedef uint32 DocId;
 class RawDoc;
 class DocBuilder {
  public:

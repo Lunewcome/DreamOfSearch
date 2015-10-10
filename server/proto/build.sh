@@ -1,3 +1,4 @@
+thrift -I ../.. --gen cpp doc_id.thrift
 thrift -I ../.. --gen cpp raw_doc.thrift
 thrift -I ../.. --gen cpp response.thrift
 thrift -I ../.. --gen cpp doc_info.thrift

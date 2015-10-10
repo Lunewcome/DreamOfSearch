@@ -5,8 +5,8 @@
 #define SERVER_MASTER_SEARCH_MASTER_H_
 #include "common/basics.h"
 #include "common/shared_ptr.h"
-#include "server/http/http_client.h"
-#include "server/http/http_server.h"
+#include "server/network/http_client.h"
+#include "server/network/http_server.h"
 
 #include <vector>
 using std::vector;
