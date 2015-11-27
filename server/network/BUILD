@@ -13,3 +13,19 @@ cc_library (
   ],
   deps = ['//common:base','#event','#event_openssl','#event_pthreads','#evhtp']
 )
+
+cc_library (
+  name = 'tcp_server',
+  srcs = [
+    'tcp_server.cc',
+  ],
+  deps = ['//common:base','#event','#event_openssl','#event_pthreads','#evhtp']
+)
+
+cc_binary (
+  name = 'test_tcp_server',
+  srcs = [
+    'tcp_server_tester.cc',
+  ],
+  deps = ['//server/network:tcp_server']
+)

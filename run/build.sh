@@ -6,6 +6,10 @@ cd ../server
 blade build
 cd -
 
+cd ../server/network
+blade build
+cd -
+
 mv ../blade-bin/server/search_root master
 
 mv ../blade-bin/server/search_backend .
