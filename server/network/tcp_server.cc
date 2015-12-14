@@ -3,6 +3,8 @@
 #include "common/log.h"
 
 #include <cstdlib>
+#include <event2/buffer.h>
+#include <event2/bufferevent.h>
 #include <event2/listener.h>
 
 
@@ -45,11 +47,12 @@ void TcpServer::ListenerCB(struct evconnlistener* listener,
       fd,
       BEV_OPT_CLOSE_ON_FREE);
   if (!bev) {
-    fprintf(stderr, "Error constructing bufferevent!");
+    Log::WriteToDisk(ERROR, "Fail to create bufferevent.");
     event_base_loopbreak(ts->eb_);
     return;
   }
-  bufferevent_setcb(bev, ReadCB, WriteCB, EventCB, this);
+  bufferevent_setcb(bev, ReadCB, WriteCB, EventCB, ts);
+  bufferevent_enable(bev, EV_READ|EV_WRITE);
 }
 
 void TcpServer::WriteCB(struct bufferevent *bev,
@@ -62,8 +65,20 @@ void TcpServer::WriteCB(struct bufferevent *bev,
 
 void TcpServer::ReadCB(struct bufferevent *bev,
                        void *user_data) {
-  char buf[1024];
-  bufferevent_read(bev, buf, 1024);
+  struct evbuffer *input = bufferevent_get_input(bev);
+  int sz = evbuffer_get_length(input);
+  char *buf = new char(sz + 1);
+  if (!buf) {
+    Log::WriteToDisk(ERROR, "Fail to get mem.");
+    return;
+  }
+
+  int len = bufferevent_read(bev, buf, sz);
+  buf[len] = '\0';
+
+  Log::WriteToDisk(DEBUG, "Server receives:%s", buf);
+
+  delete []buf;
 }
 
 void TcpServer::EventCB(struct bufferevent *bev,

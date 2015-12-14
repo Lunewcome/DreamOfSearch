@@ -1,4 +1,4 @@
-/** Processor that receives data from tcp server,
+/** Receives data from tcp server,
     parses it using specific proto(sub-class of
     ProtoBase) and then processes it with some a
     processor specified by user.
@@ -12,9 +12,20 @@
 class ProcessorBase {
  public:
   ProcessorBase(const shared_ptr<ProtoBase>& proto);
+
+  void CollectStringData(const string& data);
+
+ protected:
+  // The main body of a thread.
   virtual Process(const string& thrift_data) const = 0;
 
  private:
+  static void ThreadRunner(void* arg) {
+    ProcessorBase* pb = reinterpret_cast<ProcessorBase*>(arg);
+    pb->Process();
+    return NULL;
+  }
+
   shared_ptr<ProtoBase> proto_;
 
   DO_NOT_COPY_AND_ASSIGN(ProcessorBase);

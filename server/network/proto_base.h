@@ -6,9 +6,17 @@
 
 class ProtoBase {
  public:
-  
+  void CollectStringData(const string& data) {
+    data_.append(data)
+  }
+
+  virtual bool IsFinished() const = 0;
+
+  virtual void GetStringData(string* data) const = 0;
+
  private:
- 
+  string data_;
+
   DO_NOT_COPY_AND_ASSIGN(ProtoBase);
 };
 
