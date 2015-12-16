@@ -9,30 +9,30 @@
 #include "common/shared_ptr.h"
 #include "server/network/proto_base.h"
 
-class ProcessorBase {
+class Processor {
  public:
-  ProcessorBase(const shared_ptr<ProtoBase>& proto);
+  Processor(const shared_ptr<ProtoBase>& proto);
 
   void CollectStringData(const string& data);
 
  protected:
   // The main body of a thread.
-  virtual Process(const string& thrift_data) const = 0;
+  virtual Process(const string& thrift_data) = 0;
 
  private:
   static void ThreadRunner(void* arg) {
-    ProcessorBase* pb = reinterpret_cast<ProcessorBase*>(arg);
+    Processor* pb = reinterpret_cast<Processor*>(arg);
     pb->Process();
     return NULL;
   }
 
   shared_ptr<ProtoBase> proto_;
 
-  DO_NOT_COPY_AND_ASSIGN(ProcessorBase);
+  DO_NOT_COPY_AND_ASSIGN(Processor);
 };
 
-REGISTER_REGISTERER(ProcessorBase);
+REGISTER_REGISTERER(Processor);
 #define REGISTER_PROCESSOR(clazz) \
-    REGISTER_CLASS(ProcessorBase, clazz)
+    REGISTER_CLASS(Processor, clazz)
 
 #endif  // SERVER_NETWORK_PROCESSOR_H_
