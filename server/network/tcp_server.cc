@@ -65,6 +65,7 @@ void TcpServer::WriteCB(struct bufferevent *bev,
 
 void TcpServer::ReadCB(struct bufferevent *bev,
                        void *user_data) {
+  TcpServer* ts = static_cast<TcpServer*>(user_data);
   struct evbuffer *input = bufferevent_get_input(bev);
   int sz = evbuffer_get_length(input);
   char *buf = new char(sz + 1);
@@ -72,12 +73,13 @@ void TcpServer::ReadCB(struct bufferevent *bev,
     Log::WriteToDisk(ERROR, "Fail to get mem.");
     return;
   }
-
   int len = bufferevent_read(bev, buf, sz);
   buf[len] = '\0';
-
-  Log::WriteToDisk(DEBUG, "Server receives:%s", buf);
-
+  ts->processor_->CollectStringData(buf);
+  Log::WriteToDisk(DEBUG,
+                   "Server receives:%s,len:%d",
+                   buf,
+                   len);
   delete []buf;
 }
 

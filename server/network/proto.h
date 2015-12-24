@@ -1,16 +1,19 @@
 /** The proto used by tcp server.
  */
-#ifndef SERVER_NETWORK_PROTO_BASE_H_
-#define SERVER_NETWORK_PROTO_BASE_H_
+#ifndef SERVER_NETWORK_PROTO_H_
+#define SERVER_NETWORK_PROTO_H_
 #include "common/basics.h"
+#include "common/registerer.h"
 
+#include <string>
 #include <vector>
+using std::string;
 using std::vector;
 
-class ProtoBase {
+class Proto {
  public:
-  ProtoBase() {}
-  virtual ~ProtoBase() {}
+  Proto() {}
+  virtual ~Proto() {}
 
   virtual void CollectStringData(const string& data) = 0;
 
@@ -22,11 +25,11 @@ class ProtoBase {
   vector<string> datas_;
 
  private:
-  DO_NOT_COPY_AND_ASSIGN(ProtoBase);
+  DO_NOT_COPY_AND_ASSIGN(Proto);
 };
 
-REGISTER_REGISTERER(ProtoBase);
+REGISTER_REGISTERER(Proto);
 #define REGISTER_PROTO(clazz) \
-    REGISTER_CLASS(ProtoBase, clazz)
+    REGISTER_CLASS(Proto, clazz)
 
-#endif  // SERVER_NETWORK_PROTO_BASE_H_
+#endif  // SERVER_NETWORK_PROTO_H_

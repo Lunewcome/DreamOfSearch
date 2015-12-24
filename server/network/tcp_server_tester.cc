@@ -1,14 +1,14 @@
 #include "server/network/tcp_server.h"
 
 #include "common/log.h"
+#include "common/shared_ptr.h"
+#include "server/network/processor_simple.h"
+#include "server/network/proto_simple.h"
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
 #include <cerrno>
 #include <cstring>
-#include <iostream>
-
-using namespace std;
 
 const string msg_from_server = "Hi, this is my server!";
 
@@ -47,10 +47,13 @@ const string msg_from_server = "Hi, this is my server!";
 // }
 
 int main() {
-  Log::Init("/Users/luxinlai/DreamOfSearch/run/debug.log",
+  Log::Init("/Users/luxinlai/DreamOfSearch/run/debug_server.log",
             DEBUG,
             0);
-  TcpServer ts(6678);
+  shared_ptr<Proto> proto(new ProtoSimple());
+  shared_ptr<Processor> processor(
+      new ProcessorSimple(proto));
+  TcpServer ts(6678, processor);
   ts.Start();
   return 0;
 }

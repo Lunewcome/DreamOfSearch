@@ -4,6 +4,7 @@
 #define SERVER_NETWORK_TCP_SERVER_H_
 #include "common/basics.h"
 #include "common/shared_ptr.h"
+#include "server/network/processor.h"
 
 #include <event2/bufferevent.h>
 #include <event2/event.h>
@@ -19,8 +20,8 @@ using std::vector;
 
 class TcpServer {
  public:
-  TcpServer(int port)
-      : eb_(NULL) {
+  TcpServer(int port, shared_ptr<Processor> processor)
+      : eb_(NULL), processor_(processor) {
     Init(port);
   }
   ~TcpServer();
@@ -45,6 +46,7 @@ class TcpServer {
 
   struct event_base* eb_;
   struct evconnlistener* listener_;
+  shared_ptr<Processor> processor_;
 
   DO_NOT_COPY_AND_ASSIGN(TcpServer);
 };
