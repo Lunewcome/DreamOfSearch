@@ -87,7 +87,7 @@ void HttpBackend::AddNewDoc(
 }
 
 void HttpBackend::Status(evhtp_request_t* req,
-                      void* arg) {
+                         void* arg) {
   HttpBackend* bk = static_cast<HttpBackend*>(arg);
   bk->GetHttpServer()->SendReply(req, "I'm ok.");
 }

@@ -1,7 +1,6 @@
 #include "common/flags.h"
 #include "common/log.h"
 #include "common/util.h"
-
 #include "server/master/search_master.h"
 
 #include <unistd.h>
@@ -18,18 +17,14 @@ void SigHandler(int sig) {
 
 int main(int argc, char* argv[]) {
   base::ParseCommandLineFlags(&argc, &argv, false);
-  Log::Init(FLAGS_log_file,
-            FLAGS_v,
-            1);
+  Log::Init(FLAGS_log_file, FLAGS_v, 1);
   if (FLAGS_daemonize) {
     daemonize(0);
     silence();
   }
   setupSignalHandlers(SigHandler);
   createPidFile(FLAGS_pid_file.c_str());
-
   SearchMaster sm;
   sm.Serve();
-
   return 0;
 }

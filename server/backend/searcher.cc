@@ -61,19 +61,20 @@ void Searcher::AddNewDoc(
     RequestParams* request,
     Response* response) const {
   long long start = ustime();
-	const map<string, string>& params =
-	    request->url_params.url_kvs;
-	map<string, string>::const_iterator itrt = 
-	    params.find(request->names.add_doc);
+  const map<string, string>& params =
+      request->url_params.url_kvs;
+  map<string, string>::const_iterator itrt = 
+      params.find(request->names.add_doc);
   shared_ptr<RawDoc> raw_doc(new RawDoc());
   if (itrt != params.end()) {
-	  if (FromStringToThriftFast(itrt->second, raw_doc.get())) {
+    if (FromStringToThriftFast(itrt->second,
+                               raw_doc.get())) {
       supply_indexer_->AddDocToIndex(raw_doc);
     } else {
-		}
+    }
   } else {
-	  ///...
-	}
+    ///...
+  }
   long long end = ustime();
   response->running_info.__set_search_cost(end - start);
 }

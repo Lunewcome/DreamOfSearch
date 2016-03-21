@@ -34,10 +34,10 @@ void HttpServer::Init() {
 void HttpServer::AddCB(const string& path,
                        HttpCB cb,
                        void* arg) {
-    evhtp_set_cb(http_,
-                 path.c_str(),
-                 cb,
-                 arg);
+  evhtp_set_cb(http_,
+               path.c_str(),
+               cb,
+               arg);
 }
 
 HttpServer::~HttpServer() {

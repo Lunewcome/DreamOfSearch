@@ -58,8 +58,7 @@ void SearchMaster::Init() {
   server_->AddCB(FLAGS_query_supply, Search, this);
 }
 
-void SearchMaster::Search(evhtp_request_t* req,
-                          void* arg) {
+void SearchMaster::Search(evhtp_request_t* req, void* arg) {
   long long begin = ustime();
 
   SearchMaster* sm = reinterpret_cast<SearchMaster*>(arg);
