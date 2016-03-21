@@ -2,6 +2,7 @@
 
 #include "common/log.h"
 
+#include <cstring>
 #include <cstdlib>
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
